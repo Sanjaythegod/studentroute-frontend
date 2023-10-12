@@ -1,42 +1,77 @@
-import React from "react";
+import React, { useEffect } from "react";
 import NavBar from "../components/NavBar";
 import { Box, Typography } from "@mui/material";
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import image from '../images/why-kei-8e2gal_GIE8-unsplash.jpg'
+import userdata from '../data/userData.json'
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 
 export default function GuestHomePage() {
+    const theme = useTheme();
+    const desktop = useMediaQuery(theme.breakpoints.up("md"));
+    
+    useEffect(() => {
+        console.log(userdata.auth)
+    }, [])
+
     return (
         <div style={{
-                backgroundImage: `url(${image})`,
-                backgroundSize: 'cover', // Adjust as needed
-                backgroundPosition: 'center', // Adjust as needed
-                backgroundRepeat: 'no-repeat', // Adjust as needed
-                width: '100%',
-                height: '100vh', 
+            position: 'relative',
+            width: '100%',
+            height: '100vh',
+            overflowX: 'hidden', // Prevent horizontal scrolling
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
         }}>
-            <NavBar />
-            <Box sx={{ 
-                marginTop: '35vh', 
+            <div
+                style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundImage: `url(${image})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    filter: 'blur(5px)',
+                    zIndex: -1,
+                }}
+            ></div>
+
+            <NavBar auth={userdata.auth} />
+            <Box sx={{
+                marginTop: '35vh',
             }}>
                 <Container sx={{ paddingTop: 2 }}>
-                    <Typography variant="h1" gutterBottom style={{
+                    <Typography variant={desktop ? "h1" : "h3"} gutterBottom style={{
                         color: 'white',
                         fontWeight: 'bold',
                     }}>
-                        Welcome to StudentRoutes
+                        StudentRoutes
                     </Typography>
-                    <Typography variant="h4" paragraph style={{
+                    <Typography variant={desktop ? "h4" : "h5"} paragraph style={{
                         color: 'white',
                     }}>
-                    A free and safe school bus alternative for flexible students!
+                        A free and safe school bus alternative for flexible students!
                     </Typography>
-                    <Button variant="contained" color="primary">
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        style={{
+                            width: '200px',
+                            height: '66px',
+                            fontSize: '20px',
+                            marginTop: '30px',
+                            color: 'white',
+                        }}
+                    >
                         Get Started
                     </Button>
+
                 </Container>
             </Box>
-
         </div>
     )
 }

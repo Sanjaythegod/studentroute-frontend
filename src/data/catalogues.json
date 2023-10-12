@@ -1,0 +1,72 @@
+[
+    {
+        "id": 2,
+        "first_name": "John",
+        "last_name": "Doe",
+        "email": "johndoe@email.com",
+        "username": "johndoe123",
+        "password": "password123",
+        "home_address": "123 Main Street",
+        "frequency_pick_up": "Every weekday",
+        "time_date": "7:30 AM, Mon-Fri",
+        "extra_info": "Allergic to nuts.",
+        "school": "Del Norte",
+        "driver_status": "false"
+    },
+    {
+        "id": 3,
+        "first_name": "Alice",
+        "last_name": "Smith",
+        "email": "alicesmith@email.com",
+        "username": "alice_smith",
+        "password": "securepass",
+        "home_address": "456 Elm Avenue",
+        "frequency_pick_up": "Mondays and Wednesdays",
+        "time_date": "8:00 AM, Mon & Wed",
+        "extra_info": "Prefers car with booster seat.",
+        "school": "Mount Carmel",
+        "driver_status": "true"
+    },
+    {
+        "id": 4,
+        "first_name": "Samantha",
+        "last_name": "Johnson",
+        "email": "sam.johnson@email.com",
+        "username": "sam_j",
+        "password": "pass123",
+        "home_address": "789 Oak Road",
+        "frequency_pick_up": "Every weekday",
+        "time_date": "7:45 AM, Mon-Fri",
+        "extra_info": "Needs drop-off at soccer practice on Thursdays.",
+        "school": "Mesa Verde",
+        "driver_status": "false"
+    },
+    {
+        "id": 5,
+        "first_name": "Robert",
+        "last_name": "Garcia",
+        "email": "rgarcia@email.com",
+        "username": "rob_garcia",
+        "password": "safety123",
+        "home_address": "101 Pine Lane",
+        "frequency_pick_up": "Tuesdays and Thursdays",
+        "time_date": "8:15 AM, Tue & Thu",
+        "extra_info": "Car has a car seat for infants.",
+        "school": "Westview",
+        "driver_status": "false"
+    },
+    {
+        "id": 6,
+        "first_name": "Emily",
+        "last_name": "Wilson",
+        "email": "emily.w@email.com",
+        "username": "em_wilson",
+        "password": "secret123",
+        "home_address": "222 Willow Street",
+        "frequency_pick_up": "Every weekday",
+        "time_date": "7:55 AM, Mon-Fri",
+        "extra_info": "Allergies: None.",
+        "school": "Westview",
+        "driver_status": "false"
+    }
+]

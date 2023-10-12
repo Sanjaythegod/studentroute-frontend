@@ -1,0 +1,12 @@
+{
+    "id": "1",
+    "first_name": "Sanjay",
+    "last_name": "Marathe",
+    "email": "sanjay@email.com",
+    "username": "sanjay123",
+    "password": "1910220",
+    "home_address": "123 Main Street",
+    "driver_status": true,
+    "school": "Del Norte",
+    "auth" : true
+}
