@@ -10,11 +10,16 @@ import userData from '../data/userData.json'
 import ListItemMobile from "../components/ListItemMobile";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
+import API from '../apiconfig'
+import axios from "axios";
 
 
 
 export default function Dashboard() {
     const [search, setSearch] = useState('');
+    const [profiles, setProfiles] = useState();
+    const [users, setUsers] = useState();
+    const [allUserData, setAllUserData] = useState();
     const theme = useTheme();
     const desktop = useMediaQuery(theme.breakpoints.up("md"));
 
@@ -23,6 +28,28 @@ export default function Dashboard() {
     const handleSearchChange = (event) => {
         setSearch(event.target.value);
     };
+
+    useEffect(() => {
+        API.get('/posts').then((res) => {
+            console.log('posts',res.data)
+        }).then(() => {
+            API.get('/profiles/riders/').then((res) => {
+                console.log('riders',res.data)
+            }).then(() => {
+                API.get('/profiles').then((res) => {
+                    console.log('profiles',res.data)
+                }).then(() => {
+                    API.get('/users').then((res) => {
+                        console.log('users',res.data)
+                    })
+                })
+            })
+        })
+    }, []);
+    
+    
+
+
 
 
     // Filter catalogues based on the search text
