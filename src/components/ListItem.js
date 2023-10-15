@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Avatar from '@mui/material/Avatar';
 import Typography from "@mui/material/Typography";
 import { Divider } from "@mui/material";
@@ -31,10 +31,15 @@ function generateColorFromInitial(initial) {
     return colors[colorIndex];
 }
 
-export default function ({ data, userData }) {
+export default function ({ data, userData, apiData }) {
 
     const [hover, setHover] = useState(false);
 
+    useEffect(() => {
+        console.log('data from listItem',data)
+        console.log('data from listItem API',apiData)
+
+    })
     return (
         <div>
             <Grid container spacing={2} style={{ maxWidth: "95%", marginTop: "auto", }}>
@@ -56,11 +61,11 @@ export default function ({ data, userData }) {
                                         width: "100px",
                                         height: "100px",
                                         fontSize: "36px",
-                                        backgroundColor: generateColorFromInitial(data.first_name[0]),
+                                        backgroundColor: generateColorFromInitial(apiData.user.first_name),
                                     }}
-                                    src={data.profile_picture_url}
+                                    src={apiData.profile_picture_url}
                                 >
-                                    {data.first_name.charAt(0)}{data.last_name.charAt(0)}
+                                    {apiData.user.first_name.charAt(0)}{apiData.user.last_name.charAt(0)}
                                 </Avatar>
                             </Grid>
 
@@ -83,30 +88,32 @@ export default function ({ data, userData }) {
                             
                                 </Typography>
                                 <Typography variant="h6" fontWeight="bold" style={{ color: 'black' }}>
-                                    {data.first_name} {data.last_name}
+                                    {apiData.user.first_name} {apiData.user.last_name}
                                 </Typography>
 
                                 <div style={{ marginBottom: "5px" }}>
                                     <Typography variant="body2" color="textSecondary" style={{ color: 'black' }}>
-                                        {data.time_date}
+                                        {apiData.posts[0].time}
                                         &nbsp;•&nbsp;
-                                        {data.frequency_pick_up}
+                                        {apiData.posts[0].date}
+                                        &nbsp;•&nbsp;
+                                        {apiData.posts[0].frequency}
                                     </Typography>
                                 </div>
 
                                 <Divider />
 
                                 <Typography variant="body2" sx={{ color: "rgb(0,0,0)", marginY: "7px" }}>
-                                    {data.home_address}
+                                    {apiData.profile.address}
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: "#2376d2", marginY: "7px" }}>
-                                    Contact: {data.email}
+                                    Contact: {apiData.user.email}
                                 </Typography>
                             </Grid>
 
                             <Grid item xs>
                                 <Typography>
-                                    {data.extra_info}
+                                    {apiData.posts[0].additional_info}
                                 </Typography>
                             </Grid>
                         </Grid>

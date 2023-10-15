@@ -17,9 +17,8 @@ import axios from "axios";
 
 export default function Dashboard() {
     const [search, setSearch] = useState('');
-    const [profiles, setProfiles] = useState();
-    const [users, setUsers] = useState();
-    const [allUserData, setAllUserData] = useState();
+    const [postData, setPostData] = useState([]);
+    const [loading, setLoading] = useState(true)
     const theme = useTheme();
     const desktop = useMediaQuery(theme.breakpoints.up("md"));
 
@@ -30,24 +29,47 @@ export default function Dashboard() {
     };
 
     useEffect(() => {
-        API.get('/posts').then((res) => {
-            console.log('posts',res.data)
-        }).then(() => {
-            API.get('/profiles/riders/').then((res) => {
-                console.log('riders',res.data)
-            }).then(() => {
-                API.get('/profiles').then((res) => {
-                    console.log('profiles',res.data)
-                }).then(() => {
-                    API.get('/users').then((res) => {
-                        console.log('users',res.data)
-                    })
-                })
+        let posts, riders, profiles, users;
+    
+        API.get('/posts')
+            .then((postsResponse) => {
+                posts = postsResponse.data;
+                return API.get('/profiles/riders/');
             })
-        })
+            .then((ridersResponse) => {
+                riders = ridersResponse.data;
+                return API.get('/profiles');
+            })
+            .then((profilesResponse) => {
+                profiles = profilesResponse.data;
+                return API.get('/users');
+            })
+            .then((usersResponse) => {
+                users = usersResponse.data;
+    
+                // Combine the results into separate arrays for each user
+                const userArrays = users.map(user => {
+                    const userPosts = posts.filter(post => post.rider === user.id);
+                    const userRiders = riders.filter(rider => rider.profile === user.id);
+                    const userProfile = profiles.find(profile => profile.user === user.id);
+                    return {
+                        user,
+                        posts: userPosts,
+                        riders: userRiders,
+                        profile: userProfile,
+                    };
+                });
+    
+                console.log('User Arrays', userArrays);
+                setPostData(userArrays)
+                console.log(userArrays[0].user.first_name)
+            }).then(() => {
+                setLoading(false)
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
     }, []);
-    
-    
 
 
 
@@ -83,10 +105,14 @@ export default function Dashboard() {
                             />
                         </Box>
 
+                        {loading ? <div>loading ... </div> : 
+                        postData.map((listing, index) => (
+                            <ListItem key={index} apiData={listing} userData={userData} />
+                            // desktop ? <ListItem key={index} data={postData} userData={userData} /> : <ListItemMobile key={index} data={postData} userData={userData} />
 
-                        {filteredCatalogues.map((listing, index) => (
-                            desktop ? <ListItem key={index} data={listing} userData={userData} /> : <ListItemMobile key={index} data={listing} userData={userData} />
-                        ))}
+                        ))
+                        }
+                        
 
                     </Box>
                 </Grid>

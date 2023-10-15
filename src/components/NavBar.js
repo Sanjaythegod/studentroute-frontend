@@ -77,7 +77,7 @@ function NavBar(props) {
 
                                 onClick={() => {
                                     switch (item) {
-                                        case "Dashbaord":
+                                        case "Dashboard":
                                             navigate('/signup')
                                             break;
                                         case "Driver Matches":

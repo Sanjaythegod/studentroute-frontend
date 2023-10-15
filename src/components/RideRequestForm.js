@@ -1,12 +1,15 @@
 import React, { useState } from "react";
+import API from "../apiconfig";
 
 export default function RideReqiestForm() {
     const [formData, setFormData] = useState({
         frequency: "daily",
         date: "",
         time: "",
-        message: "",
+        additional_info: "",
+        rider: 5
     });
+
 
     const containerStyle = {
         maxWidth: "400px",
@@ -51,8 +54,30 @@ export default function RideReqiestForm() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        console.log(formData)
         // Add your logic here for form submission
-        console.log("Form data submitted:", formData);
+        API.get(`/users/${1}/`).then((result) => {
+            console.log('result from users', result.data.email)
+
+            API.get('/profiles').then((result) => {
+                console.log('result from profiles', result.data.filter(profile => profile.user === 1)[0].id)
+                const profileID = result.data.filter(profile => profile.user === 1)[0].id
+                API.get('/profiles/riders/').then((result) => {
+                    console.log('result from riders', result.data.filter(rider => rider.profile === profileID)[0].id)
+                    const riderID = result.data.filter(rider => rider.profile === profileID)[0].id
+                    API.get('/posts').then((result) => {
+                        console.log('result from posts', result.data.filter(posts => posts.rider === riderID)[0].id)
+                    }).then(() => {
+                        API.post('/posts',formData).then((res) =>{
+                            console.log(res.data)
+                        }).catch(error => {
+                            console.error('Status Code:', error.response.status);
+                            console.error('Response Data:', error.response.data);
+                        })
+                    })
+                })
+            })
+        })
     };
 
     return (
@@ -62,7 +87,7 @@ export default function RideReqiestForm() {
                 <label style={labelStyle} htmlFor="frequency">
                     Frequency:
                 </label>
-                <input style={inputStyle}/>
+                <input style={inputStyle} />
 
                 <label style={labelStyle} htmlFor="date">
                     Date:
@@ -72,6 +97,7 @@ export default function RideReqiestForm() {
                     id="date"
                     name="date"
                     value={formData.date}
+                    type="date"
                     onChange={handleChange}
                     placeholder="Ex: Every Monday and Wednesday"
                 />
@@ -88,13 +114,13 @@ export default function RideReqiestForm() {
                     onChange={handleChange}
                 />
 
-                <label style={labelStyle} htmlFor="message">
+                <label style={labelStyle} htmlFor="additional_info">
                     Additional Info:
                 </label>
                 <textarea
                     style={inputStyle}
-                    id="message"
-                    name="message"
+                    id="additional_info"
+                    name="additional_info"
                     rows="4"
                     value={formData.message}
                     onChange={handleChange}
