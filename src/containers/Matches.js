@@ -7,9 +7,11 @@ import userData from '../data/userData.json'
 import { Box } from "@mui/material";
 
 export default function Matches() {
+    const auth = localStorage.getItem('auth');
+
     return(
         <div>
-            <NavBar auth={userdata.auth} />
+            <NavBar auth={auth} />
             <Box sx={{
                 marginTop: '100px',
                 marginLeft: '100px'

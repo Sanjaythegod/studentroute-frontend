@@ -6,9 +6,11 @@ import { Box } from "@mui/material";
 
 
 export default function SignUp() {
+    const auth = localStorage.getItem('auth');
+
     return(
         <div>
-            <NavBar auth={userdata.auth} />
+            <NavBar auth={auth} />
             <Box style={{marginTop : "25px"}}>
             <SignUpForm />
             </Box>

@@ -33,17 +33,9 @@ export function generateColorFromInitial(initial) {
     return colors[colorIndex];
 }
 
-export default function DriverItem({ data }) {
+export default function RiderItem({ data }) {
     const [hover, setHover] = useState(false);
 
-    const cancelRide = () => {
-        API.put(`/profiles/riders/${data.riders.id}/`, {
-            profile: data.profiles.id,
-            driver: null
-        }).then(res => {
-            console.log(res.data)
-        })
-    }
 
     return (
         <div>
@@ -81,20 +73,6 @@ export default function DriverItem({ data }) {
                             </Grid>
 
                             <Grid item xs={8}>
-                                {data.user.id === JSON.parse(localStorage.getItem('user')).user_id ?
-                                    <Chip
-                                        label="Cancel Ride"
-                                        onClick={cancelRide}
-                                        icon={<CancelIcon />}
-                                        color="error" variant={hover ? 'solid' : 'outlined'}
-                                        onMouseEnter={() => {
-                                            setHover(true)
-                                        }}
-                                        onMouseLeave={() => {
-                                            setHover(false)
-                                        }}
-                                    /> : null
-                                }
 
                                 <Typography variant="h6" fontWeight="bold" style={{ color: 'black' }}>
                                     {data.driverUser.first_name} {data.driverUser.last_name}
@@ -104,9 +82,15 @@ export default function DriverItem({ data }) {
                                     <Typography variant="body2" color="textSecondary" style={{ color: 'black' }}>
                                         Contact: {data.driverUser.email}
                                         &nbsp;•&nbsp;
-                                        Address: {data.driverProfile.address}
+                                        Address: {data.driverProfiles.address}
                                         &nbsp;•&nbsp;
-                                        School: {data.driverProfile.school}
+                                        School: {data.driverProfiles.school}
+                                        <br />
+                                        Additional Details: {data.driverPosts.additional_info}
+                                        <br />
+                                        Pick up time : {data.driverPosts.time}
+                                        <br />
+                                        Pick up frequency : {data.driverPosts.frequency}
                                     </Typography>
                                 </div>
                             </Grid>

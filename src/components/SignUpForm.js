@@ -1,24 +1,100 @@
 import React, { useState } from "react";
+import API from '../apiconfig'
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+import { useNavigate } from "react-router-dom";
 
 export default function SignUpForm() {
-    const [formData, setFormData] = useState({
-        firstName: "",
-        lastName: "",
+    const [open, setOpen] = React.useState(false);
+    const navigate = useNavigate();
+
+    const [userData, setUserData] = useState({
+        first_name: "",
+        last_name: "",
         email: "",
         password: "",
-        homeAddress: "",
+        is_active: true
+    });
+    const [profileData, setProfileData] = useState({
+        address: "",
         school: "",
+        user: null
+    });
+    const [riderData, setRiderData] = useState({
+        profile: null,
+        driver: null
+    })
+
+    const [driverData, setDriverData] = useState({
+        profile: null,
+        approved : false
+    })
+
+    const [driverChecked, setDriverChecked] = useState(false)
+
+    const Alert = React.forwardRef(function Alert(props, ref) {
+        return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
     });
 
-    const handleChange = (e) => {
+    const handleUserChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setUserData({ ...userData, [name]: value });
+    };
+
+    const handleProfileChange = (e) => {
+        const { name, value } = e.target;
+        setProfileData({ ...profileData, [name]: value });
+        
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
         // Add your login logic here, e.g., sending data to a server or handling it in-app.
-        console.log("Form data submitted:", formData);
+        console.log("userData data submitted:", userData);
+        console.log("Profile data submitted:", profileData);
+
+        API.post('/users', userData)
+            .then((res) => {
+                console.log('result from creating a user', res.data);
+                const updatedProfile = { ...profileData, user: res.data.id };
+                API.post('/profiles', updatedProfile)
+                    .then((res) => {
+                        console.log('result from creating a profile', res.data);
+                        const updatedRider = { ...riderData, profile: res.data.id }
+                        const updatedDriver = { ...driverData, profile: res.data.id }
+                        //Diffrent endpoints if the user wants to become a driver or rider
+                        if(driverChecked){
+                            API.post('/profiles/drivers/', updatedDriver).then((res) => {
+                                console.log('result from creating a driver', res.data);
+                                navigate('/login')
+                            }).catch(err => {
+                                console.error('Status Code profile:', err.response.status);
+                                console.error('Response Data profile:', err.response.data);
+                                setOpen(true)
+                            })
+                        }else{
+                            API.post('/profiles/riders/', updatedRider).then((res) => {
+                                console.log('result from creating a rider', res.data);
+                                navigate('/login')
+                            }).catch(err => {
+                                console.error('Status Code profile:', err.response.status);
+                                console.error('Response Data profile:', err.response.data);
+                                setOpen(true)
+                            })
+                        }
+                    }).catch((err) => {
+                        console.error('Status Code profile:', err.response.status);
+                        console.error('Response Data profile:', err.response.data);
+                        setOpen(true)
+                    });
+            })
+            .catch((err) => {
+                console.error('Status Code:', err.response.status);
+                console.error('Response Data:', err.response.data);
+                setOpen(true)
+
+            });
+
     };
 
     const containerStyle = {
@@ -63,26 +139,26 @@ export default function SignUpForm() {
             <form style={formStyle} onSubmit={handleSubmit}>
                 <h2 style={{ textAlign: "center" }}>Sign up</h2>
                 <div>
-                    <label htmlFor="firstName">First Name:</label>
+                    <label htmlFor="first_name">First Name:</label>
                     <input
                         type="text"
-                        id="firstName"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleChange}
+                        id="first_name"
+                        name="first_name"
+                        value={userData.first_name}
+                        onChange={handleUserChange}
                         required
                         style={inputStyle}
                         placeholder="John"
                     />
                 </div>
                 <div>
-                    <label htmlFor="lastName">Last Name:</label>
+                    <label htmlFor="last_name">Last Name:</label>
                     <input
                         type="text"
-                        id="lastName"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleChange}
+                        id="last_name"
+                        name="last_name"
+                        value={userData.last_name}
+                        onChange={handleUserChange}
                         required
                         style={inputStyle}
                         placeholder="Doe"
@@ -94,8 +170,8 @@ export default function SignUpForm() {
                         type="email"
                         id="email"
                         name="email"
-                        value={formData.email}
-                        onChange={handleChange}
+                        value={userData.email}
+                        onChange={handleUserChange}
                         required
                         style={inputStyle}
                         placeholder="example@domain.com"
@@ -107,20 +183,20 @@ export default function SignUpForm() {
                         type="password"
                         id="password"
                         name="password"
-                        value={formData.password}
-                        onChange={handleChange}
+                        value={userData.password}
+                        onChange={handleUserChange}
                         required
                         style={inputStyle}
                     />
                 </div>
                 <div>
-                    <label htmlFor="homeAddress">Home Address:</label>
+                    <label htmlFor="address">Home Address:</label>
                     <input
                         type="text"
-                        id="homeAddress"
-                        name="homeAddress"
-                        value={formData.homeAddress}
-                        onChange={handleChange}
+                        id="address"
+                        name="address"
+                        value={profileData.address}
+                        onChange={handleProfileChange}
                         required
                         style={inputStyle}
                         placeholder="1234 Elk Wood Ln."
@@ -132,21 +208,35 @@ export default function SignUpForm() {
                         type="text"
                         id="school"
                         name="school"
-                        value={formData.school}
-                        onChange={handleChange}
+                        value={profileData.school}
+                        onChange={handleProfileChange}
                         required
                         style={inputStyle}
                         placeholder="Name of student's school"
                     />
                 </div>
                 <label>
-                    <input type="checkbox" name="becomeDriver" value="yes"/>
+                    <input type="checkbox" name="becomeDriver" value="yes" onChange={(event) => {
+                        setDriverChecked(event.target.checked)
+                    }}/>
                     Yes, I want to become a driver
                 </label>
                 <button type="submit" style={buttonStyle}>
                     Sign up
                 </button>
             </form>
+
+            <Snackbar open={open} autoHideDuration={6000} onClose={() => {
+                setOpen(false)
+            }}>
+                <Alert onClose={() => {
+                    setOpen(false)
+                }} severity="error" sx={{ width: '100%' }}>
+                    Email already taken
+                </Alert>
+            </Snackbar>
         </div>
+
+
     );
 }

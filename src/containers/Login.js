@@ -6,9 +6,11 @@ import LoginForm from "../components/LoginForm";
 
 
 export default function Login(){
+    const auth = localStorage.getItem('auth');
+
     return(
         <div>
-        <NavBar auth={userdata.auth} />
+        <NavBar auth={auth} />
         <Box style={{marginTop : "0px"}}>
         <LoginForm />
         </Box>

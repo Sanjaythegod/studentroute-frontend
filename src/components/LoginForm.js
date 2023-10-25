@@ -1,10 +1,22 @@
 import React, { useState } from "react";
+import API from "../apiconfig";
+import { Navigate, useNavigate } from "react-router-dom";
+import MuiAlert from '@mui/material/Alert';
+import { CircularProgress } from "@mui/material";
+
+function Alert(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 export default function LoginForm() {
+    const [open, setOpen] = useState(false);
+    const [err, setErr] = useState('');
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         email: "",
         password: "",
     });
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -12,9 +24,25 @@ export default function LoginForm() {
     };
 
     const handleSubmit = (e) => {
+        setLoading(true);
         e.preventDefault();
         // Add your login logic here, e.g., sending data to a server or handling it in-app.
         console.log("Form data submitted:", formData);
+        API.post('/login/', formData).then(res => {
+            console.log(res.data)
+            localStorage.setItem('auth', res.data.token)
+            localStorage.setItem('user', JSON.stringify(res.data.user))
+            localStorage.setItem('profile', JSON.stringify(res.data.profile))
+            setLoading(false);
+
+
+        }).then(() => {
+            navigate('/dashboard')
+        }).catch(err => {
+            console.error('Status Code:', err.response.status);
+            console.error('Response Data:', err.response.data);
+
+        })
     };
 
     const containerStyle = {
@@ -45,7 +73,7 @@ export default function LoginForm() {
     const buttonStyle = {
         width: "100%",
         padding: "10px",
-        backgroundColor: "#0073e6",
+        backgroundColor: loading ? "#e1e1e1" : "#0073e6",
         color: "white",
         fontSize: "18px",
         border: "none",
@@ -83,12 +111,13 @@ export default function LoginForm() {
                     />
                 </div>
                 <button type="submit" style={buttonStyle}>
-                    Login
+                {loading ? <CircularProgress size={20} /> : "Login"}
                 </button>
                 <button style={buttonStyle}>
                     Forgot Password?
                 </button>
             </form>
+            
         </div>
     );
 }

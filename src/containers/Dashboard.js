@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ListItem from "../components/ListItem";
 import catalogues from '../data/catalogues.json'
 import NavBar from "../components/NavBar";
-import userdata from '../data/userData.json'
+import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
 import { Box, Grid, Typography } from "@mui/material";
 import TextField from '@mui/material/TextField';
 import RideReqiestForm from "../components/RideRequestForm";
@@ -11,77 +11,119 @@ import ListItemMobile from "../components/ListItemMobile";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import API from '../apiconfig'
-import axios from "axios";
+import LinearProgress from '@mui/material/LinearProgress';
 
 
+export function Map() {
+    return (
+        <div sx={{height: '100%', width: '100%'}}>
+            <GoogleMap zoom={10} center={{lat: 44, lng: -80}} ></GoogleMap>
+        </div>
+    )
+    
+}
 
 export default function Dashboard() {
     const [search, setSearch] = useState('');
     const [postData, setPostData] = useState([]);
     const [loading, setLoading] = useState(true)
+    const [isDriver, setIsDriver] = useState(false);
+    const [driverID, setDriverID] = useState(null);
+    const [driver, setDriver] = useState(false)
+    const [profileId, setProfileId] = useState(null)
+
     const theme = useTheme();
+    const auth = localStorage.getItem('auth');
     const desktop = useMediaQuery(theme.breakpoints.up("md"));
 
 
-    // Function to handle changes in the filter text field
     const handleSearchChange = (event) => {
         setSearch(event.target.value);
     };
 
+
     useEffect(() => {
-        let posts, riders, profiles, users;
-    
         API.get('/posts')
-            .then((postsResponse) => {
-                posts = postsResponse.data;
-                return API.get('/profiles/riders/');
-            })
-            .then((ridersResponse) => {
-                riders = ridersResponse.data;
-                return API.get('/profiles');
-            })
-            .then((profilesResponse) => {
-                profiles = profilesResponse.data;
-                return API.get('/users');
-            })
-            .then((usersResponse) => {
-                users = usersResponse.data;
-    
-                // Combine the results into separate arrays for each user
-                const userArrays = users.map(user => {
-                    const userPosts = posts.filter(post => post.rider === user.id);
-                    const userRiders = riders.filter(rider => rider.profile === user.id);
-                    const userProfile = profiles.find(profile => profile.user === user.id);
-                    return {
-                        user,
-                        posts: userPosts,
-                        riders: userRiders,
-                        profile: userProfile,
-                    };
+            .then(postResponse => {
+                const posts = postResponse.data;
+                const dataPromises = posts.map(post => {
+                    const postPromise = API.get(`/posts/${post.id}`);
+                    const riderPromise = API.get(`/profiles/riders/${post.rider}/`);
+
+                    return Promise.all([postPromise, riderPromise])
+                        .then(responses => {
+                            const postData = responses[0].data;
+                            const riderData = responses[1].data;
+                            const profilePromise = API.get(`/profiles/${riderData.profile}`);
+                            return Promise.all([postData, riderData, profilePromise]);
+                        })
+                        .then(dataArray => {
+                            const [post, rider, profile] = dataArray;
+                            console.log(profile)
+                            const userPromise = API.get(`/users/${profile.data.user}/`);
+                            return Promise.all([post, rider, profile, userPromise]);
+                        })
+                        .then(dataArray => {
+                            const [post, rider, profile, user] = dataArray;
+                            return {
+                                posts: post,
+                                riders: rider,
+                                profiles: profile.data,
+                                user: user.data,
+                            };
+                        });
                 });
-    
-                console.log('User Arrays', userArrays);
-                setPostData(userArrays)
-                console.log(userArrays[0].user.first_name)
+
+                return Promise.all(dataPromises);
+            })
+            .then(dataResponses => {
+                // Now you have an array of objects, each containing posts, riders, profiles, and users
+                const combinedData = dataResponses.map(dataResponse => {
+                    return dataResponse;
+                });
+                console.log('combined data',combinedData);
+                setPostData(combinedData)
             }).then(() => {
                 setLoading(false)
             })
-            .catch((error) => {
-                console.error('Error:', error);
+            .catch(error => {
+                console.error('Status Code:', error.response.status);
+                console.error('Response Data:', error.response.data);
             });
     }, []);
 
+    useEffect(() => {
+        API.get(`/users/${JSON.parse(localStorage.getItem('user')).user_id}/`).then((res) => {
+            const userId = res.data.id;
+            API.get(`/profiles`).then((profileres) => {
+                const profileID = profileres.data.filter((profile) => profile.user === userId)[0].id;
+                setProfileId(profileID)
+                API.get(`/profiles/drivers/`).then((res) => {
+                    if(!!res.data.filter((driver) => driver.profile === profileID)[0]) setIsDriver(!!res.data.filter((driver) => driver.profile === profileID)[0].approved)
+                    if(!!res.data.filter((driver) => driver.profile === profileID)[0]) setDriverID(res.data.filter((driver) => driver.profile === profileID)[0].id)
+                })
+                API.get('/profiles/riders/').then(res => {
+                    const rider = res.data.filter((rider) => rider.profile === profileID)
+                    setDriver(!!rider.length)
+                })
+            });
+        });
+    },[])
 
 
 
-    // Filter catalogues based on the search text
-    const filteredCatalogues = catalogues.filter((listing) =>
-        listing.first_name.toLowerCase().includes(search.toLowerCase())
-    );
+
+
+    const filteredPostData = loading
+        ? null
+        : postData.filter((listing) =>
+            listing.user.first_name.toLowerCase().includes(search.toLowerCase())
+        );
+
 
     return (
         <div>
-            <NavBar auth={userdata.auth} badgeContent={catalogues.length} />
+            <NavBar auth={auth} badgeContent={isDriver || !driver ? 1 : 0} firstName={JSON.parse(localStorage.getItem('user')).user_first_name} lastName={JSON.parse(localStorage.getItem('user')).user_last_name}/>
             <Grid container>
                 <Grid item xs={desktop ? 4 : 12}>
                     <Box sx={{ marginTop: '125px', height: '100%', backgroundColor: 'white' }}>
@@ -93,7 +135,7 @@ export default function Dashboard() {
                         <Box sx={{
                             textAlign: desktop ? 'left' : 'center'
                         }}>
-                            <Typography variant={desktop ? "h4" : "h6"} sx={{ fontWeight: 'bold', }}>{userData.auth ? "Choose a rider" : "Westview High School"}</Typography>
+                            <Typography variant={desktop ? "h4" : "h6"} sx={{ fontWeight: 'bold', }}>Welcome, {JSON.parse(localStorage.getItem('user')).user_first_name}</Typography>
                             <TextField
                                 label="Filter Results"
                                 variant="outlined"
@@ -105,14 +147,16 @@ export default function Dashboard() {
                             />
                         </Box>
 
-                        {loading ? <div>loading ... </div> : 
-                        postData.map((listing, index) => (
-                            <ListItem key={index} apiData={listing} userData={userData} />
-                            // desktop ? <ListItem key={index} data={postData} userData={userData} /> : <ListItemMobile key={index} data={postData} userData={userData} />
-
-                        ))
+                        {loading ? <LinearProgress /> :
+                            filteredPostData.map((listing, index) => (
+                                listing.profiles ?
+                                    listing.posts.length == 0 ? null : desktop ? <ListItem key={index} apiData={listing} driverID={driverID} profileId={profileId} isDriver={isDriver}/> : <ListItemMobile key={index} apiData={listing} driverID={driverID} isDriver={isDriver}/>
+                                    :
+                                    null
+                            ))
                         }
                         
+
 
                     </Box>
                 </Grid>

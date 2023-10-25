@@ -7,13 +7,16 @@ import image from '../images/why-kei-8e2gal_GIE8-unsplash.jpg'
 import userdata from '../data/userData.json'
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
 
 export default function GuestHomePage() {
     const theme = useTheme();
     const desktop = useMediaQuery(theme.breakpoints.up("md"));
+    const navigate = useNavigate();
+    const auth = localStorage.getItem('auth');
     
     useEffect(() => {
-        console.log(userdata.auth)
+        console.log(localStorage.getItem("auth"))
     }, [])
 
     return (
@@ -40,7 +43,7 @@ export default function GuestHomePage() {
                 }}
             ></div>
 
-            <NavBar auth={userdata.auth} />
+            <NavBar auth={auth} />
             <Box sx={{
                 marginTop: '35vh',
             }}>
@@ -65,6 +68,9 @@ export default function GuestHomePage() {
                             fontSize: '20px',
                             marginTop: '30px',
                             color: 'white',
+                        }}
+                        onClick={() => {
+                            navigate('/signup')
                         }}
                     >
                         Get Started

@@ -5,12 +5,29 @@ import CardHeader from '@mui/material/CardHeader';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
+import { Modal } from '@mui/material';
 import Collapse from '@mui/material/Collapse';
 import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import DriveEtaIcon from '@mui/icons-material/DriveEta';
+import API from '../apiconfig'
+import Chip from '@mui/material/Chip';
+import {  Box, Button } from "@mui/material";
+import { useNavigate } from 'react-router-dom';
 
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+};
 
 const ExpandMore = styled((props) => {
     const { expand, ...other } = props;
@@ -23,21 +40,21 @@ const ExpandMore = styled((props) => {
     }),
 }));
 
-export default function ListItemMobile({ data }) {
+export default function ListItemMobile({ isDriver, driverID, apiData  }) {
     const [expanded, setExpanded] = React.useState(false);
-    const [moreinfo, showMoreInfo] = useState(false)
+    const [hover, setHover] = useState(false);
+    const [openmodal, setOpenModal] = React.useState(false);
+    const navigate = useNavigate()
 
     const handleExpandClick = () => {
         setExpanded(!expanded);
     };
-    const showFullDescription = (description) => {
-        showMoreInfo(true);
-    };
-    function generateColorFromInitial(initial) {
-        // Define an array of possible colors
-        const colors = ['#ff5733', '#33ff57', '#5733ff', '#ff33d1', '#33a5ff', '#ffc933'];
+    useEffect(() => {
+        console.log(driverID)
+    },[])
 
-        // Use the ASCII value of the initial character to pick a color from the array
+    function generateColorFromInitial(initial) {
+        const colors = ['#ff5733', '#33ff57', '#5733ff', '#ff33d1', '#33a5ff', '#ffc933'];
         const charCode = initial.charCodeAt(0);
         const colorIndex = charCode % colors.length;
 
@@ -45,17 +62,15 @@ export default function ListItemMobile({ data }) {
         return colors[colorIndex];
     }
 
-    const generateRandomColor = (firstName) => {
-        const firstLetter = firstName.charAt(0).toLowerCase();
-        const letterCode = firstLetter.charCodeAt(0) - 97; // ASCII code for 'a' is 97
-
-        const r = (letterCode * 7) % 256;
-        const g = (letterCode * 13) % 256;
-        const b = (letterCode * 19) % 256;
-
-        return `rgb(${r}, ${g}, ${b})`;
-    };
-
+    const driveRider = () => {
+        console.log(apiData.riders.id)
+        API.put(`/profiles/riders/${apiData.riders.id}/`, {
+            profile: apiData.profiles.id,
+            driver: driverID
+        }).then((res) => {
+            console.log(res.data)
+        })
+    }
     
 
 
@@ -69,11 +84,12 @@ export default function ListItemMobile({ data }) {
             <Card sx={{ width: '90%', backgroundColor: 'white'}} >
                 <CardHeader
                     avatar={
-                        <Avatar aria-label="user" sx={{
-                            backgroundColor: generateColorFromInitial(data.first_name[0])
-                        }}>
-                            {data.first_name.charAt(0)}{data.last_name.charAt(0)}
-                        </Avatar>
+                        apiData.user.first_name ? 
+                            (<Avatar aria-label="user" sx={{
+                                backgroundColor: apiData.user.first_name ? generateColorFromInitial(apiData.user.first_name) : null
+                            }}>
+                                {apiData.user.first_name.charAt(0)}{apiData.user.last_name.charAt(0)}
+                            </Avatar>) : <Avatar />
                     }
                     sx={{
                         color: '#454a4a',
@@ -81,19 +97,48 @@ export default function ListItemMobile({ data }) {
                             color: 'black' // Adjust the color as needed
                         }
                     }}
-                    title={data.first_name + ' ' + data.last_name}
-                    subheader={data.email}
+                    title={apiData.user.first_name + ' ' + apiData.user.last_name}
+                    subheader={apiData.user.email}
                 />
                 <CardMedia
                     component="img"
                     height="0"
-
                 />
                 <CardContent>
                     <Typography variant="body2" color="text.secondary" style={{ color: '454a4a' }}>
-                        Time: {data.time_date}<br />
-                        Frequency: {data.frequency_pick_up} <br />
-                        Home Address: {data.home_address}
+                        Time:{apiData.posts.time}<br />
+                        Frequency: {apiData.posts.frequency} <br />
+                        Date: {apiData.posts.date} <br/>
+                        Address: {apiData.profiles.address} <br/>
+                        {
+                                        apiData.user.id != JSON.parse(localStorage.getItem('user')).user_id ? (
+                                            isDriver ? (
+                                                <Chip
+                                                    label="Drive this rider"
+                                                    onClick={driveRider}
+                                                    icon={<DriveEtaIcon />}
+                                                    color="success"
+                                                    variant={hover ? 'solid' : 'outlined'}
+                                                    onMouseEnter={() => {
+                                                        setHover(true);
+                                                    }}
+                                                    onMouseLeave={() => {
+                                                        setHover(false);
+                                                    }}
+                                                />
+                                            ) : (
+                                                !!driverID ? 
+                                                null
+                                                :
+                                                <Typography variant="h8" color="primary" style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={() => {
+                                                    setOpenModal(true)
+                                                }}>
+                                                    Want to drive? Click here to become a driver
+                                                </Typography>
+                                            )
+                                        ) : null
+                                    }
+
 
                     </Typography>
                 </CardContent>
@@ -110,10 +155,32 @@ export default function ListItemMobile({ data }) {
                 </CardActions>
                 <Collapse in={expanded} timeout="auto" unmountOnExit>
                     <CardContent>
-                        <Typography style={{ color: '454a4a' }}>{data.extra_info}</Typography>
+                        <Typography style={{ color: '454a4a' }}>{apiData.posts.additional_info}</Typography>
                     </CardContent>
                 </Collapse>
             </Card>
+
+            <Modal
+                open={openmodal}
+                onClose={() => {
+                    setOpenModal(false)
+                }}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        Become a Driver?
+                    </Typography>
+                    <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                        Make a new account as a driver?
+                    </Typography>
+                    <Button variant="outlined" sx={{ marginTop: '10px' }} onClick={() => {
+                        setOpenModal(false)
+                        navigate('/signup')
+                    }}>Continue to Sign up</Button>
+                </Box>
+            </Modal>
         </div>
 
     );

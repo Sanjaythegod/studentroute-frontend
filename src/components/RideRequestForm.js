@@ -1,14 +1,38 @@
 import React, { useState } from "react";
 import API from "../apiconfig";
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert from '@mui/material/Alert';
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
+
+
+
 
 export default function RideReqiestForm() {
     const [formData, setFormData] = useState({
-        frequency: "daily",
+        frequency: "",
         date: "",
         time: "",
         additional_info: "",
         rider: 5
     });
+
+    const [open, setOpen] = React.useState(false);
+
+    const handleClick = () => {
+        setOpen(true);
+    };
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpen(false);
+    };
 
 
     const containerStyle = {
@@ -53,27 +77,33 @@ export default function RideReqiestForm() {
     };
 
     const handleSubmit = (e) => {
+        const user_id = JSON.parse(localStorage.getItem('user')).user_id
         e.preventDefault();
-        console.log(formData)
-        // Add your logic here for form submission
-        API.get(`/users/${1}/`).then((result) => {
-            console.log('result from users', result.data.email)
 
-            API.get('/profiles').then((result) => {
-                console.log('result from profiles', result.data.filter(profile => profile.user === 1)[0].id)
-                const profileID = result.data.filter(profile => profile.user === 1)[0].id
-                API.get('/profiles/riders/').then((result) => {
-                    console.log('result from riders', result.data.filter(rider => rider.profile === profileID)[0].id)
-                    const riderID = result.data.filter(rider => rider.profile === profileID)[0].id
-                    API.get('/posts').then((result) => {
-                        console.log('result from posts', result.data.filter(posts => posts.rider === riderID)[0].id)
-                    }).then(() => {
-                        API.post('/posts',formData).then((res) =>{
-                            console.log(res.data)
-                        }).catch(error => {
-                            console.error('Status Code:', error.response.status);
-                            console.error('Response Data:', error.response.data);
-                        })
+        API.get(`/users/${user_id}/`).then(res => {
+            API.get('/profiles').then(res => {
+                const profileID = res.data.filter(profile => profile.user === user_id)[0].id
+                API.get('/profiles/riders/').then(res => {
+                    const riderID = res.data.filter(rider => rider.profile === profileID)[0].id
+                    API.get('/posts').then((postsResponse) => {
+                        for (const post of postsResponse.data) {
+                            if (post.rider === riderID) {
+                                console.log("Matching Post ID:", post.id);
+                            }
+                        }
+                    })
+                    API.post('/posts', {
+                        frequency: formData.frequency,
+                        date: formData.date,
+                        time: formData.time,
+                        additional_info: formData.additional_info,
+                        rider: riderID
+                    }).then((res) => {
+                        console.log(res.data)
+                        handleClick();
+                    }).catch(error => {
+                        console.error('Status Code:', error.response.status);
+                        console.error('Response Data:', error.response.data);
                     })
                 })
             })
@@ -81,16 +111,23 @@ export default function RideReqiestForm() {
     };
 
     return (
+
         <div style={containerStyle}>
             <h1 style={{ textAlign: "center" }}>Request a Ride</h1>
             <form onSubmit={handleSubmit}>
                 <label style={labelStyle} htmlFor="frequency">
                     Frequency:
                 </label>
-                <input style={inputStyle} />
+                <input style={inputStyle}
+                    value={formData.frequency}
+                    id="frequency"
+                    name="frequency"
+                    onChange={handleChange}
+                    placeholder="Ex: Every other Wednesday"
 
+                />
                 <label style={labelStyle} htmlFor="date">
-                    Date:
+                    Date of pick-up:
                 </label>
                 <input
                     style={inputStyle}
@@ -103,7 +140,7 @@ export default function RideReqiestForm() {
                 />
 
                 <label style={labelStyle} htmlFor="time">
-                    Time:
+                    Time of pick-up:
                 </label>
                 <input
                     type="time"
@@ -130,6 +167,11 @@ export default function RideReqiestForm() {
                     Request Ride
                 </button>
             </form>
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+                    Request Created!
+                </Alert>
+            </Snackbar>
         </div>
     );
 }

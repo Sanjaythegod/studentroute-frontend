@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -15,22 +15,28 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
-import { Badge } from '@mui/material';
+import { Avatar, Badge } from '@mui/material';
 import MailIcon from '@mui/icons-material/Mail';
-
+import { generateColorFromInitial } from './ListItem';
 
 const drawerWidth = 240;
 const navItems = ['Sign up', 'Log in'];
-const authNavItems = ["Driver Matches", "Dashboard"];
+const authNavItems = ["Dashboard", "Log out", "Profile"];
 
 function NavBar(props) {
     const { window } = props;
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const navigate = useNavigate();
 
+
     const handleDrawerToggle = () => {
         setMobileOpen((prevState) => !prevState);
     };
+
+    useEffect(() => {
+        console.log("badgecontent",props.badgeContent)
+        
+    },[])
 
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }} >
@@ -55,7 +61,7 @@ function NavBar(props) {
 
 
                                 }}
-                            /> {/* Add fontWeight style here */}
+                            /> 
                         </ListItemButton>
                     </ListItem>
                 ))}
@@ -82,15 +88,22 @@ function NavBar(props) {
                                             break;
                                         case "Driver Matches":
                                             navigate('/matches');
-                                            break
+                                            break;
+                                        case "Log out":
+                                            ['auth', 'user', 'profile'].forEach((item) => {localStorage.removeItem(item)})
+                                            navigate('/')
+                                            break;
+                                        case "Profile":
+                                            navigate(`/profile/${JSON.parse(localStorage.getItem('user')).user_id}`)
+                                            break;
                                     }
 
 
                                 }}
                             />
-                            {item === 'Driver Matches' ? 
+                            {item === 'Profile' ? 
                             <Badge badgeContent={props.badgeContent} color="secondary">
-                                <MailIcon color="white" />
+                                <MailIcon />
                             </Badge> : null}
                         </ListItemButton>
                     </ListItem>
@@ -163,7 +176,7 @@ function NavBar(props) {
                                     sx={{
                                         color: item === "Sign up" ? 'black' : '#fff',
                                         fontWeight: 'bold',
-                                        backgroundColor: item === "Driver Matches" ? 'none' : 'black',
+                                        backgroundColor: item === "Profile" ? 'none' : 'black',
                                         margin: '10px',
                                         width: '100px',
                                         padding: '5px',
@@ -176,16 +189,29 @@ function NavBar(props) {
                                                 break;
                                             case "Driver Matches":
                                                 navigate('/matches');
-                                                break
+                                                break;
+                                            case "Profile":
+                                                navigate(`/profile/${JSON.parse(localStorage.getItem('user')).user_id}`)
+                                                break;
+                                            case "Log out":
+                                                ['auth', 'user', 'profile'].forEach((item) => {localStorage.removeItem(item)})
+                                                navigate('/')
+                                                break;
                                         }
 
 
                                     }}
 
                                 >
-                                    {item === 'Driver Matches' ? (
+                                    {item === 'Profile' ? (
                                         <Badge badgeContent={props.badgeContent} color="secondary">
-                                            <MailIcon color="white" />
+                                            <Avatar sx={{
+                                                width: '40px',
+                                                height: '40px',
+                                                backgroundColor : props.firstName ? generateColorFromInitial(props.firstName[0]) : null
+                                            }}>
+                                                { props.firstName && props.lastName ? props.firstName[0]+props.lastName[0] : null}
+                                            </Avatar>
                                         </Badge>
                                     ) : (
                                         <span>{item}</span>
