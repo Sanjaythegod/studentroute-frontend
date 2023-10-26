@@ -5,7 +5,7 @@ import CardHeader from '@mui/material/CardHeader';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import CardActions from '@mui/material/CardActions';
-import { Modal } from '@mui/material';
+import { Modal, Snackbar } from '@mui/material';
 import Collapse from '@mui/material/Collapse';
 import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
@@ -15,6 +15,7 @@ import DriveEtaIcon from '@mui/icons-material/DriveEta';
 import API from '../apiconfig'
 import Chip from '@mui/material/Chip';
 import {  Box, Button } from "@mui/material";
+import MuiAlert from '@mui/material/Alert';
 import { useNavigate } from 'react-router-dom';
 
 const style = {
@@ -44,6 +45,7 @@ export default function ListItemMobile({ isDriver, driverID, apiData  }) {
     const [expanded, setExpanded] = React.useState(false);
     const [hover, setHover] = useState(false);
     const [openmodal, setOpenModal] = React.useState(false);
+    const [driverOpen, setDriverOpen] = useState(false)
     const navigate = useNavigate()
 
     const handleExpandClick = () => {
@@ -52,6 +54,10 @@ export default function ListItemMobile({ isDriver, driverID, apiData  }) {
     useEffect(() => {
         console.log(driverID)
     },[])
+
+    const Alert = React.forwardRef(function Alert(props, ref) {
+        return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+    });
 
     function generateColorFromInitial(initial) {
         const colors = ['#ff5733', '#33ff57', '#5733ff', '#ff33d1', '#33a5ff', '#ffc933'];
@@ -69,6 +75,7 @@ export default function ListItemMobile({ isDriver, driverID, apiData  }) {
             driver: driverID
         }).then((res) => {
             console.log(res.data)
+            setDriverOpen(true)
         })
     }
     
@@ -181,6 +188,16 @@ export default function ListItemMobile({ isDriver, driverID, apiData  }) {
                     }}>Continue to Sign up</Button>
                 </Box>
             </Modal>
+
+            <Snackbar open={driverOpen} autoHideDuration={6000} onClose={() => {
+                setDriverOpen(false)
+            }}>
+                <Alert onClose={() => {
+                setDriverOpen(false)
+                }} severity="success" sx={{ width: '100%' }}>
+                    You are now driving {apiData.user.first_name} {apiData.user.last_name}
+                </Alert>
+            </Snackbar>
         </div>
 
     );

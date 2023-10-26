@@ -16,11 +16,11 @@ import LinearProgress from '@mui/material/LinearProgress';
 
 export function Map() {
     return (
-        <div sx={{height: '100%', width: '100%'}}>
-            <GoogleMap zoom={10} center={{lat: 44, lng: -80}} ></GoogleMap>
+        <div sx={{ height: '100%', width: '100%' }}>
+            <GoogleMap zoom={10} center={{ lat: 44, lng: -80 }} ></GoogleMap>
         </div>
     )
-    
+
 }
 
 export default function Dashboard() {
@@ -81,7 +81,7 @@ export default function Dashboard() {
                 const combinedData = dataResponses.map(dataResponse => {
                     return dataResponse;
                 });
-                console.log('combined data',combinedData);
+                console.log('combined data', combinedData);
                 setPostData(combinedData)
             }).then(() => {
                 setLoading(false)
@@ -92,6 +92,8 @@ export default function Dashboard() {
             });
     }, []);
 
+    //user's data
+
     useEffect(() => {
         API.get(`/users/${JSON.parse(localStorage.getItem('user')).user_id}/`).then((res) => {
             const userId = res.data.id;
@@ -99,8 +101,8 @@ export default function Dashboard() {
                 const profileID = profileres.data.filter((profile) => profile.user === userId)[0].id;
                 setProfileId(profileID)
                 API.get(`/profiles/drivers/`).then((res) => {
-                    if(!!res.data.filter((driver) => driver.profile === profileID)[0]) setIsDriver(!!res.data.filter((driver) => driver.profile === profileID)[0].approved)
-                    if(!!res.data.filter((driver) => driver.profile === profileID)[0]) setDriverID(res.data.filter((driver) => driver.profile === profileID)[0].id)
+                    if (!!res.data.filter((driver) => driver.profile === profileID)[0]) setIsDriver(!!res.data.filter((driver) => driver.profile === profileID)[0].approved)
+                    if (!!res.data.filter((driver) => driver.profile === profileID)[0]) setDriverID(res.data.filter((driver) => driver.profile === profileID)[0].id)
                 })
                 API.get('/profiles/riders/').then(res => {
                     const rider = res.data.filter((rider) => rider.profile === profileID)
@@ -108,7 +110,7 @@ export default function Dashboard() {
                 })
             });
         });
-    },[])
+    }, [])
 
 
 
@@ -117,25 +119,30 @@ export default function Dashboard() {
     const filteredPostData = loading
         ? null
         : postData.filter((listing) =>
-            listing.user.first_name.toLowerCase().includes(search.toLowerCase())
+            listing.user.first_name.toLowerCase().includes(search.toLowerCase()) &&
+            listing.profiles.school === JSON.parse(localStorage.getItem('profile')).profile_school &&
+            listing.posts.archived === false
         );
 
 
     return (
         <div>
-            <NavBar auth={auth} badgeContent={isDriver || !driver ? 1 : 0} firstName={JSON.parse(localStorage.getItem('user')).user_first_name} lastName={JSON.parse(localStorage.getItem('user')).user_last_name}/>
+            <NavBar auth={auth} badgeContent={isDriver || !driver ? 1 : 0} firstName={JSON.parse(localStorage.getItem('user')).user_first_name} lastName={JSON.parse(localStorage.getItem('user')).user_last_name} />
             <Grid container>
-                <Grid item xs={desktop ? 4 : 12}>
-                    <Box sx={{ marginTop: '125px', height: '100%', backgroundColor: 'white' }}>
-                        <RideReqiestForm />
-                    </Box>
-                </Grid>
-                <Grid item xs={desktop ? 8 : 12}>
-                    <Box sx={{ marginTop: desktop ? '125px' : '15px', height: '100%', backgroundColor: 'white', }}>
+                {isDriver ? null :
+                    <Grid item xs={desktop ? 4 : 12}>
+                        <Box sx={{ marginTop: '125px', height: '100%', backgroundColor: 'white' }}>
+                            <RideReqiestForm />
+                        </Box>
+                    </Grid>
+                }
+
+                <Grid item xs={desktop ? (isDriver ? 12 : 8) : 12}>
+                    <Box sx={{ marginTop: desktop ? '125px' : '95px', height: '100%', backgroundColor: 'white', }}>
                         <Box sx={{
-                            textAlign: desktop ? 'left' : 'center'
+                            textAlign: desktop ? isDriver ? 'center' : 'left' : 'center'
                         }}>
-                            <Typography variant={desktop ? "h4" : "h6"} sx={{ fontWeight: 'bold', }}>Welcome, {JSON.parse(localStorage.getItem('user')).user_first_name}</Typography>
+                            <Typography variant={desktop ? "h4" : "h5"} sx={{ fontWeight: 'bold', }}>Welcome, {JSON.parse(localStorage.getItem('user')).user_first_name}</Typography>
                             <TextField
                                 label="Filter Results"
                                 variant="outlined"
@@ -147,15 +154,22 @@ export default function Dashboard() {
                             />
                         </Box>
 
-                        {loading ? <LinearProgress /> :
-                            filteredPostData.map((listing, index) => (
-                                listing.profiles ?
-                                    listing.posts.length == 0 ? null : desktop ? <ListItem key={index} apiData={listing} driverID={driverID} profileId={profileId} isDriver={isDriver}/> : <ListItemMobile key={index} apiData={listing} driverID={driverID} isDriver={isDriver}/>
-                                    :
-                                    null
-                            ))
-                        }
-                        
+                        <Box sx={{
+                            marginLeft: desktop ? isDriver ? '150px'  : "0px" : "0px",
+                            marginRight: 'auto'
+                        }}>
+                            {loading ? <LinearProgress /> :
+                                filteredPostData.map((listing, index) => (
+                                    listing.profiles ?
+                                        listing.posts.length === 0 ? null : desktop ? <ListItem key={index} apiData={listing} driverID={driverID} profileId={profileId} isDriver={isDriver} /> : <ListItemMobile key={index} apiData={listing} driverID={driverID} isDriver={isDriver} />
+                                        :
+                                        null
+                                ))
+                            }
+                        </Box>
+
+
+
 
 
                     </Box>

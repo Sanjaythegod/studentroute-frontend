@@ -27,7 +27,7 @@ export default function SignUpForm() {
 
     const [driverData, setDriverData] = useState({
         profile: null,
-        approved : false
+        approved: false
     })
 
     const [driverChecked, setDriverChecked] = useState(false)
@@ -44,7 +44,7 @@ export default function SignUpForm() {
     const handleProfileChange = (e) => {
         const { name, value } = e.target;
         setProfileData({ ...profileData, [name]: value });
-        
+
     };
 
     const handleSubmit = (e) => {
@@ -63,7 +63,7 @@ export default function SignUpForm() {
                         const updatedRider = { ...riderData, profile: res.data.id }
                         const updatedDriver = { ...driverData, profile: res.data.id }
                         //Diffrent endpoints if the user wants to become a driver or rider
-                        if(driverChecked){
+                        if (driverChecked) {
                             API.post('/profiles/drivers/', updatedDriver).then((res) => {
                                 console.log('result from creating a driver', res.data);
                                 navigate('/login')
@@ -72,7 +72,7 @@ export default function SignUpForm() {
                                 console.error('Response Data profile:', err.response.data);
                                 setOpen(true)
                             })
-                        }else{
+                        } else {
                             API.post('/profiles/riders/', updatedRider).then((res) => {
                                 console.log('result from creating a rider', res.data);
                                 navigate('/login')
@@ -204,21 +204,25 @@ export default function SignUpForm() {
                 </div>
                 <div>
                     <label htmlFor="school">School:</label>
-                    <input
-                        type="text"
+                    <select
                         id="school"
                         name="school"
                         value={profileData.school}
                         onChange={handleProfileChange}
                         required
                         style={inputStyle}
-                        placeholder="Name of student's school"
-                    />
+                    >
+                        <option value="">Select a school</option>
+                        <option value="Westview High School">Westview High School</option>
+                        <option value="Del Norte High School">Del Norte High School</option>
+                        <option value="Mount Carmel High School">Mount Carmel High School</option>
+                    </select>
                 </div>
+
                 <label>
                     <input type="checkbox" name="becomeDriver" value="yes" onChange={(event) => {
                         setDriverChecked(event.target.checked)
-                    }}/>
+                    }} />
                     Yes, I want to become a driver
                 </label>
                 <button type="submit" style={buttonStyle}>

@@ -56,6 +56,7 @@ export default function ({ isDriver, driverID, apiData, profileId }) {
     const [hover, setHover] = useState(false);
     const [openmodal, setOpenModal] = React.useState(false);
     const [open, setOpen] = useState(false)
+    const [driverOpen, setDriverOpen] = useState(false)
     const handleOpen = () => setOpenModal(true);
     const handleClose = () => setOpenModal(false);
     const navigate = useNavigate();
@@ -76,6 +77,7 @@ export default function ({ isDriver, driverID, apiData, profileId }) {
             driver: driverID
         }).then((res) => {
             console.log(res.data)
+            setDriverOpen(true)
         })
     }
 
@@ -216,6 +218,16 @@ export default function ({ isDriver, driverID, apiData, profileId }) {
                 setOpen(false)
                 }} severity="error" sx={{ width: '100%' }}>
                     You have already submitted a request
+                </Alert>
+            </Snackbar>
+
+            <Snackbar open={driverOpen} autoHideDuration={6000} onClose={() => {
+                setDriverOpen(false)
+            }}>
+                <Alert onClose={() => {
+                setDriverOpen(false)
+                }} severity="success" sx={{ width: '100%' }}>
+                    You are now driving {apiData.user.first_name} {apiData.user.last_name}
                 </Alert>
             </Snackbar>
         </div>

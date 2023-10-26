@@ -87,7 +87,7 @@ export default function DriverItemMobile({ data  }) {
                     subheader={
                         data.user.id === JSON.parse(localStorage.getItem('user')).user_id ?
                                         <Chip
-                                            label="Cancel Ride"
+                                            label="End Ride"
                                             onClick={cancelRide}
                                             icon={<CancelIcon />}
                                             color="error" variant={hover ? 'solid' : 'outlined'}
