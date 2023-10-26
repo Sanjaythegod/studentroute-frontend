@@ -3,7 +3,7 @@ import ListItem from "../components/ListItem";
 import catalogues from '../data/catalogues.json'
 import NavBar from "../components/NavBar";
 import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, CircularProgress, Grid, Typography } from "@mui/material";
 import TextField from '@mui/material/TextField';
 import RideReqiestForm from "../components/RideRequestForm";
 import userData from '../data/userData.json'
@@ -13,6 +13,8 @@ import { useTheme } from "@mui/material/styles";
 import API from '../apiconfig'
 import LinearProgress from '@mui/material/LinearProgress';
 import { useNavigate } from "react-router-dom";
+import DriverItem from "../components/DriverItem";
+import DriverItemMobile from "../components/DriverItemMobile";
 
 
 export function Map() {
@@ -32,6 +34,7 @@ export default function Dashboard() {
     const [driverID, setDriverID] = useState(null);
     const [driver, setDriver] = useState(false)
     const [profileId, setProfileId] = useState(null)
+    const [posted, setPosted] = useState(false);
     const [driverFound, setDriverFound] = useState(false);
     const navigate = useNavigate();
 
@@ -96,6 +99,8 @@ export default function Dashboard() {
     }, []);
 
     //user's data
+    const [profile, setProfile] = useState(null)
+    const [rider, setRider] = useState(null)
 
     useEffect(() => {
         API.get(`/users/${JSON.parse(localStorage.getItem('user')).user_id}/`).then((res) => {
@@ -103,45 +108,80 @@ export default function Dashboard() {
             API.get(`/profiles`).then((profileres) => {
                 const profileID = profileres.data.filter((profile) => profile.user === userId)[0].id;
                 setProfileId(profileID)
+                setProfile(profileres.data.filter((profile) => profile.user === userId)[0])
                 API.get(`/profiles/drivers/`).then((res) => {
                     if (!!res.data.filter((driver) => driver.profile === profileID)[0]) setIsDriver(!!res.data.filter((driver) => driver.profile === profileID)[0].approved)
                     if (!!res.data.filter((driver) => driver.profile === profileID)[0]) setDriverID(res.data.filter((driver) => driver.profile === profileID)[0].id)
                     const tempDriver = !!res.data.filter((driver) => driver.profile === profileID)[0] ? !!res.data.filter((driver) => driver.profile === profileID)[0].approved : null
+                    console.log('tempdriver', tempDriver)
 
-                    //get users for the driver
-                    /* if(tempDriver) {
-                        API.get(`/users/${JSON.parse(localStorage.getItem('user')).user_id}`).then(res => {
-                            const userId = res.data.id;
-                            API.get('/profiles').then(res => {
-                                const profileId =  res.data.filter((profile) => profile.user === userId)[0].id
-                                API.get('/profiles/drivers/').then(res => {
-                                    const driverId = res.data.filter((driver) => driver.profile === profileId)[0].id
-                                    console.log('driver id', driverId)
-                                    API.get('/profiles/riders/').then(res => {
-                                        const riderWithDriverId = res.data.filter(rider => rider.driver === driverId);
-                                        console.log(riderWithDriverId)
-                                        if(riderWithDriverId) {
-
-                                        }
-                                    })
-                
-                                })
-                            })
+                    //check if the rider has posted
+                    API.get('/profiles/riders/').then(res => {
+                        const rider = res.data.filter((rider) => rider.profile === profileID)
+                        setRider(tempDriver ? null : res.data.filter((rider) => rider.profile === profileID)[0])
+                        console.log('rider', rider)
+                        const riderID = tempDriver ? null : res.data.filter((rider) => rider.profile === profileID)[0].id
+                        API.get('/posts').then(res => {
+                            setPosted(res.data.filter((post) => post.rider = riderID))
+                            console.log('posted state', res.data.filter((post) => post.rider = riderID))
                         })
-                    } */
-                    
+                        setDriver(!!rider.length)
+                    })
+
                 })
-                API.get('/profiles/riders/').then(res => {
-                    const rider = res.data.filter((rider) => rider.profile === profileID)
-                    setDriver(!!rider.length)
-                })
+
             });
         });
     }, [])
 
+    //polling to find which driver is matched with user
 
-    
-    
+    const [driverProfile, setDriverProfile] = useState(null);
+    const [driverUser, setDriverUser] = useState(null)
+    const [poll, setPoll] = useState(true);
+
+
+
+    if (!isDriver && profileId && poll) {
+        const pollingInterval = 5000;
+        console.log('polling ran');
+        const poll = setInterval(() => {
+            API.get('/profiles/riders/').then(res => {
+                const rider = res.data.filter(rider => rider.profile === profileId)[0];
+                console.log(rider);
+                if (rider && rider.driver != null) {
+                    API.get(`/profiles/drivers/${rider.driver}`).then(res => {
+                        API.get(`/profiles/${res.data.profile}`).then(res => {
+                            setDriverProfile(res.data);
+                            API.get(`/users/${res.data.user}`).then(res => {
+                                console.log('poll res', res.data);
+                                setDriverUser(res.data);
+                            }).catch(err => {
+                                setPoll(false)
+                            })
+                        }).catch(err => {
+                            setPoll(false)
+                        })
+                    }).catch(err => {
+                        setPoll(false)
+                    })
+                }
+            });
+        }, pollingInterval);
+        setTimeout(() => {
+            clearInterval(poll);
+            console.log('polling stopped')
+            setPoll(false)
+        }, 7000);
+    }
+
+
+
+
+
+
+
+
 
 
 
@@ -158,20 +198,44 @@ export default function Dashboard() {
     return (
         <div>
             <NavBar auth={auth} badgeContent={isDriver || !driver ? 1 : 0} firstName={JSON.parse(localStorage.getItem('user')).user_first_name} lastName={JSON.parse(localStorage.getItem('user')).user_last_name} />
-            <Grid container>
-                
-                
-                    <Grid item xs={desktop ? 4 : 12}>
-                        <Box sx={{ marginTop: '125px', height: '100%', backgroundColor: 'white' }}>
-                            <RideReqiestForm />
-                        </Box>
-                    </Grid>
+            {!isDriver ?
+                posted.length > 0 ?
+                    <div style={{ marginTop: '100px' }}>
+                        {driverProfile && driverUser ?
+                            [{ driverUser: driverUser, driverProfile: driverProfile, user: { id: JSON.parse(localStorage.getItem('user')).user_id }, profiles: profile, riders: rider }].map((item) => (
+                                desktop ? <DriverItem data={item} /> : <DriverItemMobile data={item} />
+                            ))
+                            :
+                            <Box style={{
+                                textAlign: 'center'
+                            }}>
+                                {poll ?
+                                    <div>
+                                        <Typography>Searching for a Driver</Typography>
+                                        <CircularProgress />
+                                    </div>
+                                    :
+                                    <Typography>No Driver Found</Typography>
+                                }
 
+                            </Box>
+                        }
+                    </div> :
+                    <Box style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        minHeight: '100vh',
+                    }}>
+                        <RideReqiestForm />
+                    </Box>
+
+                :
 
                 <Grid item xs={desktop ? 8 : 12}>
                     <Box sx={{ marginTop: desktop ? '125px' : '95px', height: '100%', backgroundColor: 'white', }}>
                         <Box sx={{
-                            textAlign: desktop ? isDriver ? 'left' : 'left' : 'center'
+                            textAlign: 'center'
                         }}>
                             <Typography variant={desktop ? "h4" : "h5"} sx={{ fontWeight: 'bold', }}>Welcome, {JSON.parse(localStorage.getItem('user')).user_first_name}</Typography>
                             <TextField
@@ -186,7 +250,7 @@ export default function Dashboard() {
                         </Box>
 
                         <Box sx={{
-                            marginLeft: desktop ? isDriver ? '150px'  : "0px" : "0px",
+                            marginLeft: desktop ? isDriver ? '150px' : "0px" : "0px",
                             marginRight: 'auto'
                         }}>
                             {loading ? <LinearProgress /> :
@@ -198,13 +262,19 @@ export default function Dashboard() {
                                 ))
                             }
                         </Box>
-
-
-
-
-
                     </Box>
                 </Grid>
+
+            }
+            <Grid container>
+                {/* <Grid item xs={desktop ? 4 : 12}>
+                    <Box sx={{ marginTop: '125px', height: '100%', backgroundColor: 'white' }}>
+                        <RideReqiestForm />
+                    </Box>
+                </Grid> */}
+
+
+
             </Grid>
         </div>
     )

@@ -130,14 +130,15 @@ export default function DriverProfileComponent({ id }) {
                             <Typography sx={textStyle}>Account Type: Driver</Typography>
                         </Grid>
                         <Grid item xs={desktop ? 8 : 12} style={{ marginTop: '30px' }}>
-                            <Typography variant="h6" sx={{
-                                textAlign: 'center'
-                            }}>Currently Driving:</Typography>
-                            {driverUser && driverPosts && driverProfiles ? [{ driverUser: driverUser, driverProfiles: driverProfiles, driverPosts: driverPosts }].map(item => (
+                            
+                            {driverUser.length > 0 && driverPosts && driverProfiles ? [{ driverUser: driverUser, driverProfiles: driverProfiles, driverPosts: driverPosts }].map(item => (
+                                    <Typography variant="h6" sx={{
+                                        textAlign: 'center'
+                                    }}>Currently Driving:</Typography> + 
                                     desktop ? <RiderItem data={item} />: <RiderItemMobile data={item} />
 
 
-                            )) : "not driving anyone"}
+                            )) : "Not Currently Driving Anyone"}
                         </Grid>
                     </Grid>
 

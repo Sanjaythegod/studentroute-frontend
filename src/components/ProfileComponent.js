@@ -98,6 +98,8 @@ export default function ProfileComponent({ id }) {
                             </Typography>
                             <Typography sx={textStyle}>Email: {user.email}</Typography>
                             <Typography sx={textStyle}>Account Type: {driver.length > 0 ? "Driver" : "Rider"}</Typography>
+                            <Typography sx={textStyle}>School: {profile ? profile.school : null}</Typography>
+
                         </Grid>
                         <Grid item xs={desktop ? 8 : 12} style={{ marginTop: '30px' }}>
                             {driver.length > 0 ? <p>The Driver is already driving someone</p> :
@@ -109,8 +111,8 @@ export default function ProfileComponent({ id }) {
                                     : <p>This user hasnt submitted a ride request yet.</p>
 
                             }
-                            <Typography>Driven by:</Typography>
                             {driverUser && driverProfile ? 
+                            <Typography>Driven by:</Typography>+
                             [{driverUser:driverUser, driverProfile: driverProfile, user: user, profiles: profile, posts: post, riders: rider}].map((item) => (
                                 desktop ? <DriverItem data={item} /> : <DriverItemMobile  data={item}/>
                             )):<p>This Rider doesn't currently have a Driver</p>
