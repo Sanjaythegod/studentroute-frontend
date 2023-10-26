@@ -12,6 +12,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import API from '../apiconfig'
 import LinearProgress from '@mui/material/LinearProgress';
+import { useNavigate } from "react-router-dom";
 
 
 export function Map() {
@@ -31,6 +32,8 @@ export default function Dashboard() {
     const [driverID, setDriverID] = useState(null);
     const [driver, setDriver] = useState(false)
     const [profileId, setProfileId] = useState(null)
+    const [driverFound, setDriverFound] = useState(false);
+    const navigate = useNavigate();
 
     const theme = useTheme();
     const auth = localStorage.getItem('auth');
@@ -103,6 +106,30 @@ export default function Dashboard() {
                 API.get(`/profiles/drivers/`).then((res) => {
                     if (!!res.data.filter((driver) => driver.profile === profileID)[0]) setIsDriver(!!res.data.filter((driver) => driver.profile === profileID)[0].approved)
                     if (!!res.data.filter((driver) => driver.profile === profileID)[0]) setDriverID(res.data.filter((driver) => driver.profile === profileID)[0].id)
+                    const tempDriver = !!res.data.filter((driver) => driver.profile === profileID)[0] ? !!res.data.filter((driver) => driver.profile === profileID)[0].approved : null
+
+                    //get users for the driver
+                    /* if(tempDriver) {
+                        API.get(`/users/${JSON.parse(localStorage.getItem('user')).user_id}`).then(res => {
+                            const userId = res.data.id;
+                            API.get('/profiles').then(res => {
+                                const profileId =  res.data.filter((profile) => profile.user === userId)[0].id
+                                API.get('/profiles/drivers/').then(res => {
+                                    const driverId = res.data.filter((driver) => driver.profile === profileId)[0].id
+                                    console.log('driver id', driverId)
+                                    API.get('/profiles/riders/').then(res => {
+                                        const riderWithDriverId = res.data.filter(rider => rider.driver === driverId);
+                                        console.log(riderWithDriverId)
+                                        if(riderWithDriverId) {
+
+                                        }
+                                    })
+                
+                                })
+                            })
+                        })
+                    } */
+                    
                 })
                 API.get('/profiles/riders/').then(res => {
                     const rider = res.data.filter((rider) => rider.profile === profileID)
@@ -112,6 +139,9 @@ export default function Dashboard() {
         });
     }, [])
 
+
+    
+    
 
 
 
@@ -129,18 +159,19 @@ export default function Dashboard() {
         <div>
             <NavBar auth={auth} badgeContent={isDriver || !driver ? 1 : 0} firstName={JSON.parse(localStorage.getItem('user')).user_first_name} lastName={JSON.parse(localStorage.getItem('user')).user_last_name} />
             <Grid container>
-                {isDriver ? null :
+                
+                
                     <Grid item xs={desktop ? 4 : 12}>
                         <Box sx={{ marginTop: '125px', height: '100%', backgroundColor: 'white' }}>
                             <RideReqiestForm />
                         </Box>
                     </Grid>
-                }
 
-                <Grid item xs={desktop ? (isDriver ? 12 : 8) : 12}>
+
+                <Grid item xs={desktop ? 8 : 12}>
                     <Box sx={{ marginTop: desktop ? '125px' : '95px', height: '100%', backgroundColor: 'white', }}>
                         <Box sx={{
-                            textAlign: desktop ? isDriver ? 'center' : 'left' : 'center'
+                            textAlign: desktop ? isDriver ? 'left' : 'left' : 'center'
                         }}>
                             <Typography variant={desktop ? "h4" : "h5"} sx={{ fontWeight: 'bold', }}>Welcome, {JSON.parse(localStorage.getItem('user')).user_first_name}</Typography>
                             <TextField
@@ -161,9 +192,9 @@ export default function Dashboard() {
                             {loading ? <LinearProgress /> :
                                 filteredPostData.map((listing, index) => (
                                     listing.profiles ?
-                                        listing.posts.length === 0 ? null : desktop ? <ListItem key={index} apiData={listing} driverID={driverID} profileId={profileId} isDriver={isDriver} /> : <ListItemMobile key={index} apiData={listing} driverID={driverID} isDriver={isDriver} />
+                                        listing.posts.length === 0 ? <Typography>There are no avaiable riders</Typography> : desktop ? <ListItem key={index} apiData={listing} driverID={driverID} profileId={profileId} isDriver={isDriver} /> : <ListItemMobile key={index} apiData={listing} driverID={driverID} isDriver={isDriver} />
                                         :
-                                        null
+                                        <p>Helooo</p>
                                 ))
                             }
                         </Box>
