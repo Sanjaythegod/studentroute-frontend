@@ -42,8 +42,8 @@ export default function GuestHomePage() {
                     zIndex: -1,
                 }}
             ></div>
-
-            <NavBar auth={auth} />
+            {auth ? <NavBar auth={auth} firstName={JSON.parse(localStorage.getItem('user')).user_first_name} lastName={JSON.parse(localStorage.getItem('user')).user_last_name}/> : <NavBar auth={auth} />}
+            
             <Box sx={{
                 marginTop: '35vh',
             }}>
