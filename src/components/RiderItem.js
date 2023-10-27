@@ -53,16 +53,16 @@ export default function RiderItem({ data }) {
                     >
                         <Grid container alignItems="center" spacing={2}>
                             <Grid item>
-                                {data.driverUser.first_name ?
+                                {data.user.first_name ?
                                     <Avatar
                                         sx={{
                                             width: "100px",
                                             height: "100px",
                                             fontSize: "36px",
-                                            backgroundColor: generateColorFromInitial(data.driverUser.first_name),
+                                            backgroundColor: generateColorFromInitial(data.user.first_name),
                                         }}
                                     >
-                                        {data.driverUser.first_name.charAt(0)}{data.driverUser.last_name.charAt(0)}
+                                        {data.user.first_name.charAt(0)}{data.user.last_name.charAt(0)}
                                     </Avatar> :
                                     <Avatar sx={{
                                         width: "100px",
@@ -75,22 +75,22 @@ export default function RiderItem({ data }) {
                             <Grid item xs={8}>
 
                                 <Typography variant="h6" fontWeight="bold" style={{ color: 'black' }}>
-                                    {data.driverUser.first_name} {data.driverUser.last_name}
+                                    {data.user.first_name} {data.user.last_name}
                                 </Typography>
 
                                 <div style={{ marginBottom: "5px" }}>
                                     <Typography variant="body2" color="textSecondary" style={{ color: 'black' }}>
-                                        Contact: {data.driverUser.email}
+                                        Contact: {data.user.email}
                                         &nbsp;•&nbsp;
-                                        Address: {data.driverProfiles.address}
+                                        Address: {data.profile.address}
                                         &nbsp;•&nbsp;
-                                        School: {data.driverProfiles.school}
+                                        School: {data.profile.school}
                                         <br />
-                                        Additional Details: {data.driverPosts.additional_info}
+                                        Additional Details: {data.post.additional_info}
                                         <br />
-                                        Pick up time : {data.driverPosts.time}
+                                        Pick up time : {data.post.time}
                                         <br />
-                                        Pick up frequency : {data.driverPosts.frequency}
+                                        Pick up frequency : {data.post.frequency}
                                     </Typography>
                                 </div>
                             </Grid>

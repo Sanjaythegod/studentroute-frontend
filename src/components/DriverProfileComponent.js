@@ -48,13 +48,7 @@ export default function DriverProfileComponent({ id }) {
     };
 
 
-    const getRider = () => {
-
-    }
-
-    useEffect(() => {
-
-    }, [driver])
+    
 
     useEffect(() => {
         API.get(`/users/${id}`).then(res => {

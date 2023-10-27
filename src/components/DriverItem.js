@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import Avatar from '@mui/material/Avatar';
 import Typography from "@mui/material/Typography";
-import { Divider } from "@mui/material";
+import { Snackbar } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import CancelIcon from '@mui/icons-material/Cancel';
 import Chip from '@mui/material/Chip';
 import API from '../apiconfig'
+import MuiAlert from '@mui/material/Alert';
+
 
 
 
@@ -35,6 +37,11 @@ export function generateColorFromInitial(initial) {
 
 export default function DriverItem({ data }) {
     const [hover, setHover] = useState(false);
+    const [open, setOpen] = useState(false);
+
+    const Alert = React.forwardRef(function Alert(props, ref) {
+        return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+    });
 
     const cancelRide = () => {
         API.put(`/profiles/riders/${data.riders.id}/`, {
@@ -42,8 +49,13 @@ export default function DriverItem({ data }) {
             driver: null
         }).then(res => {
             console.log(res.data)
+            setOpen(true)
         })
     }
+
+    useEffect(() => {
+        console.log('data from driverIte',data)
+    })
 
     return (
         <div>
@@ -114,6 +126,16 @@ export default function DriverItem({ data }) {
                     </Paper>
                 </Grid>
             </Grid>
+
+            <Snackbar open={open} autoHideDuration={6000} onClose={() => {
+                setOpen(false)
+            }}>
+                <Alert onClose={() => {
+                setOpen(false)
+                }} severity="success" sx={{ width: '100%' }}>
+                    Ride Ended! Have a Great Day 😀
+                </Alert>
+            </Snackbar>
         </div>
     )
 }

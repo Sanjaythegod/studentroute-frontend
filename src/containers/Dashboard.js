@@ -15,6 +15,8 @@ import LinearProgress from '@mui/material/LinearProgress';
 import { useNavigate } from "react-router-dom";
 import DriverItem from "../components/DriverItem";
 import DriverItemMobile from "../components/DriverItemMobile";
+import RiderItem from "../components/RiderItem";
+import RiderItemMobile from "../components/RiderItemMobile";
 
 
 export function Map() {
@@ -105,10 +107,14 @@ export default function Dashboard() {
     useEffect(() => {
         API.get(`/users/${JSON.parse(localStorage.getItem('user')).user_id}/`).then((res) => {
             const userId = res.data.id;
+            console.log('userId', userId)
+
             API.get(`/profiles`).then((profileres) => {
                 const profileID = profileres.data.filter((profile) => profile.user === userId)[0].id;
                 setProfileId(profileID)
+                console.log('profileId', profileID)
                 setProfile(profileres.data.filter((profile) => profile.user === userId)[0])
+                console.log('profile xd', profile)
                 API.get(`/profiles/drivers/`).then((res) => {
                     if (!!res.data.filter((driver) => driver.profile === profileID)[0]) setIsDriver(!!res.data.filter((driver) => driver.profile === profileID)[0].approved)
                     if (!!res.data.filter((driver) => driver.profile === profileID)[0]) setDriverID(res.data.filter((driver) => driver.profile === profileID)[0].id)
@@ -116,17 +122,23 @@ export default function Dashboard() {
                     console.log('tempdriver', tempDriver)
 
                     //check if the rider has posted
-                    API.get('/profiles/riders/').then(res => {
-                        const rider = res.data.filter((rider) => rider.profile === profileID)
-                        setRider(tempDriver ? null : res.data.filter((rider) => rider.profile === profileID)[0])
-                        console.log('rider', rider)
-                        const riderID = tempDriver ? null : res.data.filter((rider) => rider.profile === profileID)[0].id
-                        API.get('/posts').then(res => {
-                            setPosted(res.data.filter((post) => post.rider = riderID))
-                            console.log('posted state', res.data.filter((post) => post.rider = riderID))
+                    if (!tempDriver) {
+                        API.get('/profiles/riders/').then(res => {
+                            const rider = res.data.filter((rider) => rider.profile === profileID)
+                            if (rider.length > 0) setDriverFound(!!rider[0].driver ? true : false);
+                            setRider(res.data.filter((rider) => rider.profile === profileID)[0])
+                            console.log('rider', rider)
+                            const riderID = tempDriver ? null : res.data.filter((rider) => rider.profile === profileID)[0].id
+                            API.get('/posts').then(res => {
+                                setPosted(res.data.filter((post) => post.archived === false && post.rider === riderID).length > 0 ? true : false)
+                                console.log('posted 129', res.data.filter((post) => post.archived === false && post.rider === riderID))
+                            })
+                            setDriver(!!rider.length)
                         })
-                        setDriver(!!rider.length)
-                    })
+                    }
+
+                    //check if rider has a driver
+
 
                 })
 
@@ -142,6 +154,7 @@ export default function Dashboard() {
 
 
 
+
     if (!isDriver && profileId && poll) {
         const pollingInterval = 5000;
         console.log('polling ran');
@@ -149,7 +162,12 @@ export default function Dashboard() {
             API.get('/profiles/riders/').then(res => {
                 const rider = res.data.filter(rider => rider.profile === profileId)[0];
                 console.log(rider);
+                API.get('/posts').then(res => {
+                    const post = rider ? res.data.filter(post => post.rider = rider.id) : null
+                    console.log('post from dashboard', post)
+                })
                 if (rider && rider.driver != null) {
+
                     API.get(`/profiles/drivers/${rider.driver}`).then(res => {
                         API.get(`/profiles/${res.data.profile}`).then(res => {
                             setDriverProfile(res.data);
@@ -172,18 +190,66 @@ export default function Dashboard() {
             clearInterval(poll);
             console.log('polling stopped')
             setPoll(false)
-        }, 7000);
+        }, 10000);
     }
 
+    const [driverPoll, setDriverPoll] = useState(true)
+    const [allRiders, setAllRiders] = useState(null)
+
+    if (isDriver && driverID && driverPoll) {
+        const pollingInterval = 5000;
+        console.log('driver polling ran');
+        const poll = setInterval(() => {
+            // Define an empty array to store the combined data.
+            const combinedData = [];
+
+            // Make all four API calls simultaneously.
+            Promise.all([
+                API.get('/profiles/riders/'),
+                API.get('/profiles'),
+                API.get('/posts'),
+                API.get('/users')
+            ])
+                .then(([ridersResponse, profilesResponse, postsResponse, usersResponse]) => {
+                    const riderData = ridersResponse.data.filter((rider) => rider.driver === driverID);
+
+                    // Use a loop or map to process each rider and combine the data.
+                    riderData.forEach((rider) => {
+                        const riderId = rider.id;
+                        // Retrieve the related profile and user information.
+                        const profile = profilesResponse.data.find((profile) => profile.id === rider.profile);
+                        const user = usersResponse.data.find((user) => user.id === profile.user);
+
+                        // Fetch post data for the given rider.
+                        const post = postsResponse.data.find((post) => post.rider === riderId);
+
+                        // Create a new object combining the data and push it to the combinedData array.
+                        const combinedObject = {
+                            rider,
+                            profile,
+                            user,
+                            post,
+                        };
+                        combinedData.push(combinedObject);
+                    });
+
+                    console.log(combinedData);
+                    setAllRiders(combinedData)
+                })
+                .catch((error) => {
+                    // Handle errors here.
+                    console.error('Error:', error);
+                });
 
 
 
-
-
-
-
-
-
+        }, pollingInterval);
+        setTimeout(() => {
+            clearInterval(poll);
+            console.log('driver polling stopped')
+            setDriverPoll(false)
+        }, 10000);
+    }
 
 
     const filteredPostData = loading
@@ -199,11 +265,14 @@ export default function Dashboard() {
         <div>
             <NavBar auth={auth} badgeContent={isDriver || !driver ? 1 : 0} firstName={JSON.parse(localStorage.getItem('user')).user_first_name} lastName={JSON.parse(localStorage.getItem('user')).user_last_name} />
             {!isDriver ?
-                posted.length > 0 ?
+                posted || driverFound ?
                     <div style={{ marginTop: '100px' }}>
+                        {driverProfile && driverUser ? <Typography variant={desktop ? 'h3' : 'h4'} style={{
+                            textAlign: 'center'
+                        }}>My Driver:</Typography> : null}
                         {driverProfile && driverUser ?
                             [{ driverUser: driverUser, driverProfile: driverProfile, user: { id: JSON.parse(localStorage.getItem('user')).user_id }, profiles: profile, riders: rider }].map((item) => (
-                                desktop ? <DriverItem data={item} /> : <DriverItemMobile data={item} />
+                                desktop ? <Box style={{ marginLeft: '100px' }}><DriverItem data={item} /></Box> : <DriverItemMobile data={item} />
                             ))
                             :
                             <Box style={{
@@ -211,7 +280,7 @@ export default function Dashboard() {
                             }}>
                                 {poll ?
                                     <div>
-                                        <Typography>Searching for a Driver</Typography>
+                                        <Typography>Searching for your Driver</Typography>
                                         <CircularProgress />
                                     </div>
                                     :
@@ -231,51 +300,52 @@ export default function Dashboard() {
                     </Box>
 
                 :
-
-                <Grid item xs={desktop ? 8 : 12}>
-                    <Box sx={{ marginTop: desktop ? '125px' : '95px', height: '100%', backgroundColor: 'white', }}>
-                        <Box sx={{
-                            textAlign: 'center'
-                        }}>
-                            <Typography variant={desktop ? "h4" : "h5"} sx={{ fontWeight: 'bold', }}>Welcome, {JSON.parse(localStorage.getItem('user')).user_first_name}</Typography>
-                            <TextField
-                                label="Filter Results"
-                                variant="outlined"
-                                value={search}
-                                sx={{
-                                    width: '245px'
-                                }}
-                                onChange={handleSearchChange} // Attach the event handler
-                            />
+                //Driver's Dashboard
+                <Grid container>
+                    <Grid item xs={3}>
+                        <Box sx={{ marginTop: desktop ? '125px' : '95px', height: '100%', backgroundColor: 'white' }}>
+                            <Box>
+                                <Typography variant="h5" style={{
+                                    textAlign: 'center'
+                                }}>My Riders:</Typography>
+                                {allRiders && allRiders.length > 0 ? allRiders.map((listing, index) => (
+                                    <RiderItemMobile data={listing} />
+                                )) :
+                                    driverPoll ? <LinearProgress /> : <Typography textAlign='center'>You are not driving any riders</Typography>}
+                            </Box>
                         </Box>
+                    </Grid>
 
-                        <Box sx={{
-                            marginLeft: desktop ? isDriver ? '150px' : "0px" : "0px",
-                            marginRight: 'auto'
-                        }}>
-                            {loading ? <LinearProgress /> :
-                                filteredPostData.map((listing, index) => (
-                                    listing.profiles ?
-                                        listing.posts.length === 0 ? <Typography>There are no avaiable riders</Typography> : desktop ? <ListItem key={index} apiData={listing} driverID={driverID} profileId={profileId} isDriver={isDriver} /> : <ListItemMobile key={index} apiData={listing} driverID={driverID} isDriver={isDriver} />
-                                        :
-                                        <p>Helooo</p>
-                                ))
-                            }
+                    <Grid item xs={9}>
+                        <Box sx={{ marginTop: desktop ? '125px' : '95px', height: '100%', backgroundColor: 'white' }}>
+                            <Box sx={{ marginLeft: '0' }}>
+                                <Box sx={{ textAlign: desktop ? 'left' : 'center' }}>
+                                    <Typography variant={desktop ? 'h4' : 'h5'} sx={{ fontWeight: 'bold' }}>Welcome, {JSON.parse(localStorage.getItem('user')).user_first_name}</Typography>
+                                    <TextField
+                                        label="Filter Results"
+                                        variant="outlined"
+                                        value={search}
+                                        sx={{ width: '245px' }}
+                                        onChange={handleSearchChange} // Attach the event handler
+                                    />
+                                </Box>
+
+                                {loading ? <LinearProgress /> :
+                                    filteredPostData.map((listing, index) => (
+                                        listing.profiles ?
+                                            listing.posts.length === 0 ? <Typography>There are no available riders</Typography> : desktop ? <ListItem key={index} apiData={listing} driverID={driverID} profileId={profileId} isDriver={isDriver} /> : <ListItemMobile key={index} apiData={listing} driverID={driverID} isDriver={isDriver} />
+                                            :
+                                            <Typography>There are no available riders</Typography>
+                                    ))
+                                }
+                            </Box>
                         </Box>
-                    </Box>
+                    </Grid>
                 </Grid>
 
+
             }
-            <Grid container>
-                {/* <Grid item xs={desktop ? 4 : 12}>
-                    <Box sx={{ marginTop: '125px', height: '100%', backgroundColor: 'white' }}>
-                        <RideReqiestForm />
-                    </Box>
-                </Grid> */}
 
-
-
-            </Grid>
         </div>
     )
 }

@@ -26,7 +26,7 @@ const ExpandMore = styled((props) => {
     }),
 }));
 
-export default function RiderItemMobile({ data  }) {
+export default function RiderItemMobile({ data }) {
     const [expanded, setExpanded] = React.useState(false);
     const [moreinfo, showMoreInfo] = useState(false)
     const [hover, setHover] = useState(false);
@@ -46,10 +46,10 @@ export default function RiderItemMobile({ data  }) {
         return colors[colorIndex];
     }
 
-    
 
-    
-    
+
+
+
 
 
 
@@ -59,15 +59,15 @@ export default function RiderItemMobile({ data  }) {
             margin: "10px",
             justifyContent: "center"
         }}>
-            <Card sx={{ width: '90%', backgroundColor: 'white'}} >
-                
+            <Card sx={{ width: '90%', backgroundColor: 'white' }} >
+
                 <CardHeader
                     avatar={
-                        data.driverUser.first_name ? 
+                        data.user.first_name ?
                             (<Avatar aria-label="user" sx={{
-                                backgroundColor: data.driverUser.first_name ? generateColorFromInitial(data.driverUser.first_name) : null
+                                backgroundColor: data.user.first_name ? generateColorFromInitial(data.user.first_name) : null
                             }}>
-                                {data.driverUser.first_name.charAt(0)}{data.driverUser.last_name.charAt(0)}
+                                {data.user.first_name.charAt(0)}{data.user.last_name.charAt(0)}
                             </Avatar>) : <Avatar />
                     }
                     sx={{
@@ -76,7 +76,7 @@ export default function RiderItemMobile({ data  }) {
                             color: 'black' // Adjust the color as needed
                         }
                     }}
-                    title={data.driverUser.first_name + ' ' + data.driverUser.last_name}
+                    title={data.user.first_name + ' ' + data.user.last_name}
                 />
                 <CardMedia
                     component="img"
@@ -84,27 +84,28 @@ export default function RiderItemMobile({ data  }) {
                 />
                 <CardContent>
                     <Typography variant="body2" color="text.secondary" style={{ color: '454a4a' }}>
-                        Contact:{data.driverUser.email}<br />
-                        School: {data.driverProfiles.school} <br/>
-                        Address: {data.driverProfiles.address} <br/>
+                        Contact: <a href={`mailto:${data.user.email}`}>{data.user.email}</a><br />
+                        School: {data.profile.school} <br />
+                        Address: {data.profile.address} <br />
                     </Typography>
+
                 </CardContent>
                 <CardActions disableSpacing>
-                    <Typography style={{ color: '454a4a'}}>View additional info:</Typography>
+                    <Typography style={{ color: '454a4a' }}>View additional info:</Typography>
                     <ExpandMore
                         expand={expanded}
                         onClick={handleExpandClick}
                         aria-expanded={expanded}
                         aria-label="show more"
                     >
-                        <ExpandMoreIcon style={{ color: '454a5a'}}/>
+                        <ExpandMoreIcon style={{ color: '454a5a' }} />
                     </ExpandMore>
                 </CardActions>
                 <Collapse in={expanded} timeout="auto" unmountOnExit>
                     <CardContent>
-                        <Typography style={{ color: '454a4a' }}>Pick up time: {data.driverPosts.time}</Typography>
-                        <Typography style={{ color: '454a4a' }}>Pick up frequency: {data.driverPosts.frequency}</Typography>
-                        <Typography style={{ color: '454a4a' }}>Additional Info{data.driverPosts.additional_info}</Typography>
+                        <Typography style={{ color: '454a4a' }}>Pick up time: {data.post.time}</Typography>
+                        <Typography style={{ color: '454a4a' }}>Pick up frequency: {data.post.frequency}</Typography>
+                        <Typography style={{ color: '454a4a' }}>Additional Info{data.post.additional_info}</Typography>
 
                     </CardContent>
                 </Collapse>

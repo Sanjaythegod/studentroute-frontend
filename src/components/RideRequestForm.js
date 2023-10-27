@@ -21,6 +21,8 @@ export default function RideReqiestForm() {
     });
 
     const [open, setOpen] = React.useState(false);
+    const [errorOpen, setErrorOpen] = React.useState(false);
+
 
     const handleClick = () => {
         setOpen(true);
@@ -82,9 +84,9 @@ export default function RideReqiestForm() {
 
         API.get(`/users/${user_id}/`).then(res => {
             API.get('/profiles').then(res => {
-                const profileID = res.data.filter(profile => profile.user === user_id)[0].id
+                const profileID = res.data.filter(profile => profile.user === user_id).length > 0 ? res.data.filter(profile => profile.user === user_id)[0].id : null
                 API.get('/profiles/riders/').then(res => {
-                    const riderID = res.data.filter(rider => rider.profile === profileID)[0].id
+                    const riderID = res.data.filter(rider => rider.profile === profileID).length > 0 ? res.data.filter(rider => rider.profile === profileID)[0].id : null
                     API.get('/posts').then((postsResponse) => {
                         for (const post of postsResponse.data) {
                             if (post.rider === riderID) {
@@ -104,6 +106,7 @@ export default function RideReqiestForm() {
                     }).catch(error => {
                         console.error('Status Code:', error.response.status);
                         console.error('Response Data:', error.response.data);
+                        setErrorOpen(true)
                     })
                 })
             })
@@ -170,6 +173,16 @@ export default function RideReqiestForm() {
             <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
                     Request Created!
+                </Alert>
+            </Snackbar>
+
+            <Snackbar open={errorOpen} autoHideDuration={6000} onClose={() => {
+                setErrorOpen(false)
+            }}>
+                <Alert onClose={() => {
+                    setErrorOpen(false)
+                }} severity="warning" sx={{ width: '100%' }}>
+                    You havent been Verified as a driver yet!
                 </Alert>
             </Snackbar>
         </div>
