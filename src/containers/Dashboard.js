@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import ListItem from "../components/ListItem";
 import catalogues from '../data/catalogues.json'
 import NavBar from "../components/NavBar";
-import { GoogleMap, useLoadScript, Marker } from "@react-google-maps/api";
+import { GoogleMap, useLoadScript } from "@react-google-maps/api";
 import { Box, CircularProgress, Grid, Typography } from "@mui/material";
 import TextField from '@mui/material/TextField';
 import RideReqiestForm from "../components/RideRequestForm";
-import userData from '../data/userData.json'
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import ListItemMobile from "../components/ListItemMobile";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
@@ -15,18 +15,27 @@ import LinearProgress from '@mui/material/LinearProgress';
 import { useNavigate } from "react-router-dom";
 import DriverItem from "../components/DriverItem";
 import DriverItemMobile from "../components/DriverItemMobile";
-import RiderItem from "../components/RiderItem";
+import "leaflet/dist/leaflet.css"
 import RiderItemMobile from "../components/RiderItemMobile";
+import { Icon } from "leaflet";
 
 
 export function Map() {
     return (
         <div sx={{ height: '100%', width: '100%' }}>
-            <GoogleMap zoom={10} center={{ lat: 44, lng: -80 }} ></GoogleMap>
+            <GoogleMap zoom={16} center={{ lat: 44, lng: -80 }} ></GoogleMap>
         </div>
     )
 
 }
+
+export const markers = [];
+
+const customIcon = new Icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/128/2776/2776067.png',
+    iconSize: [35, 35]
+})
+
 
 export default function Dashboard() {
     const [search, setSearch] = useState('');
@@ -38,6 +47,7 @@ export default function Dashboard() {
     const [profileId, setProfileId] = useState(null)
     const [posted, setPosted] = useState(false);
     const [driverFound, setDriverFound] = useState(false);
+    const [schoolCoords, setSchoolCoords] = useState(null)
     const navigate = useNavigate();
 
     const theme = useTheme();
@@ -51,6 +61,20 @@ export default function Dashboard() {
 
 
     useEffect(() => {
+        fetch(`https://geocode.maps.co/search?q=` + JSON.parse(localStorage.getItem('profile')).profile_school)
+            .then(response => response.json())
+            .then(data => {
+                setSchoolCoords([
+                    data[0].lat, data[0].lon
+                ])
+                console.log('school coords', [
+                    data[0].lat, data[0].lon
+                ])
+            })
+            .catch(error => {
+                console.error("Failed to fetch data:", error);
+            });
+        console.log('useEffect Markers', markers.length > 0 ? markers : null)
         API.get('/posts')
             .then(postResponse => {
                 const posts = postResponse.data;
@@ -261,6 +285,7 @@ export default function Dashboard() {
         );
 
 
+
     return (
         <div>
             <NavBar auth={auth} badgeContent={isDriver || !driver ? 1 : 0} firstName={JSON.parse(localStorage.getItem('user')).user_first_name} lastName={JSON.parse(localStorage.getItem('user')).user_last_name} />
@@ -302,7 +327,7 @@ export default function Dashboard() {
                 :
                 //Driver's Dashboard
                 <Grid container>
-                    <Grid item xs={3}>
+                    <Grid item xs={desktop ? 3 : 12}>
                         <Box sx={{ marginTop: desktop ? '125px' : '95px', height: '100%', backgroundColor: 'white' }}>
                             <Box>
                                 <Typography variant="h5" style={{
@@ -316,8 +341,8 @@ export default function Dashboard() {
                         </Box>
                     </Grid>
 
-                    <Grid item xs={9}>
-                        <Box sx={{ marginTop: desktop ? '125px' : '95px', height: '100%', backgroundColor: 'white' }}>
+                    <Grid item xs={desktop ? 5 : 12}>
+                        <Box sx={{ marginTop: desktop ? '125px' : '20px', height: '100%', backgroundColor: 'white' }}>
                             <Box sx={{ marginLeft: '0' }}>
                                 <Box sx={{ textAlign: desktop ? 'left' : 'center' }}>
                                     <Typography variant={desktop ? 'h4' : 'h5'} sx={{ fontWeight: 'bold' }}>Welcome, {JSON.parse(localStorage.getItem('user')).user_first_name}</Typography>
@@ -339,6 +364,28 @@ export default function Dashboard() {
                                     ))
                                 }
                             </Box>
+                        </Box>
+                    </Grid>
+                    <Grid item xs={desktop ? 4 : 12}>
+                        <Box sx={{
+                            marginTop: '100px'
+                        }}>
+                            {schoolCoords ?
+                                <MapContainer center={schoolCoords ? schoolCoords : [32.96011262244259, -117.16684926319186]} zoom={14}>
+                                    <TileLayer
+                                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                        url='https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+                                    />
+                                    {markers.map(marker => (
+                                        <Marker position={marker.geocode} icon={customIcon}>
+                                            <Popup>
+                                                {marker.popUp}
+                                            </Popup>
+                                        </Marker>
+                                    ))}
+                                </MapContainer> : <CircularProgress />
+                            }
+
                         </Box>
                     </Grid>
                 </Grid>

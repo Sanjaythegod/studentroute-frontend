@@ -10,6 +10,7 @@ import API from '../apiconfig'
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import { useNavigate } from "react-router-dom";
+import { markers } from "../containers/Dashboard";
 
 
 
@@ -41,7 +42,7 @@ export const generateRandomColor = (firstName) => {
 
 export function generateColorFromInitial(initial) {
     // Define an array of possible colors
-    const colors = ['#ff5733', '#33ff57', '#5733ff', '#ff33d1', '#33a5ff', '#ffc933'];
+    const colors = ['#ff5733', '#33ff57', '#5733ff', '#ff33d1', '#33a5ff', '#ffc933', "#FF5733", "#2AB3A6", "#C17A97", "#6EC4E8", "#A9D06E", "#F694C1", "#9F53C8", "#E1B135", "#4D9E66", "#EC7A44",];
 
     // Use the ASCII value of the initial character to pick a color from the array
     const charCode = initial.charCodeAt(0);
@@ -64,6 +65,18 @@ export default function ({ isDriver, driverID, apiData, profileId }) {
     useEffect(() => {
         console.log('data from listItem API', apiData)
         console.log(!!driverID)
+
+            fetch(`https://geocode.maps.co/search?q=`+apiData.profiles.address)
+            .then(response => response.json())
+            .then(data => {
+                console.log('get coordinate',data[0]);
+                markers.push({geocode: [data[0].lat, data[0].lon], popUp: apiData.user.first_name + " "  + apiData.user.last_name})
+            })
+            .catch(error => {
+                console.error("Failed to fetch data:", error);
+            });
+
+
     })
 
     const Alert = React.forwardRef(function Alert(props, ref) {
@@ -146,12 +159,12 @@ export default function ({ isDriver, driverID, apiData, profileId }) {
                                                     }}
                                                 />
                                             ) : (
-                                                !!driverID ? null:
-                                                <Typography variant="h8" style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={handleOpen}>
-                                                    Want to drive? Click here to become a driver
-                                                </Typography>
+                                                !!driverID ? null :
+                                                    <Typography variant="h8" style={{ textDecoration: 'underline', cursor: 'pointer' }} onClick={handleOpen}>
+                                                        Want to drive? Click here to become a driver
+                                                    </Typography>
                                             )
-                                        ): null
+                                        ) : null
                                     }
 
 
@@ -215,7 +228,7 @@ export default function ({ isDriver, driverID, apiData, profileId }) {
                 setOpen(false)
             }}>
                 <Alert onClose={() => {
-                setOpen(false)
+                    setOpen(false)
                 }} severity="error" sx={{ width: '100%' }}>
                     You have already submitted a request
                 </Alert>
@@ -225,7 +238,7 @@ export default function ({ isDriver, driverID, apiData, profileId }) {
                 setDriverOpen(false)
             }}>
                 <Alert onClose={() => {
-                setDriverOpen(false)
+                    setDriverOpen(false)
                 }} severity="success" sx={{ width: '100%' }}>
                     You are now driving {apiData.user.first_name} {apiData.user.last_name}
                 </Alert>

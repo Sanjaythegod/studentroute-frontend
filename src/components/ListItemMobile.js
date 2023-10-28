@@ -60,7 +60,7 @@ export default function ListItemMobile({ isDriver, driverID, apiData  }) {
     });
 
     function generateColorFromInitial(initial) {
-        const colors = ['#ff5733', '#33ff57', '#5733ff', '#ff33d1', '#33a5ff', '#ffc933'];
+        const colors = ['#ff5733', '#33ff57', '#5733ff', '#ff33d1', '#33a5ff', '#ffc933', "#FF5733", "#2AB3A6", "#C17A97", "#6EC4E8", "#A9D06E", "#F694C1", "#9F53C8", "#E1B135", "#4D9E66", "#EC7A44",];
         const charCode = initial.charCodeAt(0);
         const colorIndex = charCode % colors.length;
 

@@ -23,7 +23,7 @@ export const generateRandomColor = (firstName) => {
 
 export function generateColorFromInitial(initial) {
     // Define an array of possible colors
-    const colors = ['#ff5733', '#33ff57', '#5733ff', '#ff33d1', '#33a5ff', '#ffc933'];
+    const colors = ['#ff5733', '#33ff57', '#5733ff', '#ff33d1', '#33a5ff', '#ffc933', "#FF5733", "#2AB3A6", "#C17A97", "#6EC4E8", "#A9D06E", "#F694C1", "#9F53C8", "#E1B135", "#4D9E66", "#EC7A44",];
 
     // Use the ASCII value of the initial character to pick a color from the array
     const charCode = initial.charCodeAt(0);
