@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom';
 import { Avatar, Badge } from '@mui/material';
 import MailIcon from '@mui/icons-material/Mail';
 import { generateColorFromInitial } from './ListItem';
+import logo from "../images/favicon.ico"
 
 const drawerWidth = 240;
 const navItems = ['Sign up', 'Log in'];
@@ -41,7 +42,7 @@ function NavBar(props) {
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }} >
             <Typography variant="h6" sx={{ my: 2, fontWeight: 700 }} onClick={() => { navigate('/') }}>
-                StudentRoutes
+                StudentRoutes 
             </Typography>
             <Divider />
             <List>
@@ -134,7 +135,7 @@ function NavBar(props) {
                         sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' }, fontWeight: 'bold', cursor: 'pointer' }}
                         onClick={() => { navigate('/') }}
                     >
-                        StudentRoutes
+                        StudentRoutes 
                     </Typography>
                     <Box sx={{ display: { xs: 'none', sm: 'block' }, }}>
                         {!props.auth ? (

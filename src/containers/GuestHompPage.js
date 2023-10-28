@@ -57,7 +57,7 @@ export default function GuestHomePage() {
                     <Typography variant={desktop ? "h4" : "h5"} paragraph style={{
                         color: 'white',
                     }}>
-                        A free and safe school bus alternative for flexible students!
+                        A Free and Safe Ride Sharing App for School!
                     </Typography>
                     <Button
                         variant="contained"
