@@ -204,7 +204,7 @@ export default function SignUpForm() {
                 </div>
                 <div>
                     <label htmlFor="school">School:</label>
-                    <select
+                    {/* <select
                         id="school"
                         name="school"
                         value={profileData.school}
@@ -216,7 +216,15 @@ export default function SignUpForm() {
                         <option value="Westview High School">Westview High School</option>
                         <option value="Del Norte High School">Del Norte High School</option>
                         <option value="Mount Carmel High School">Mount Carmel High School</option>
-                    </select>
+                    </select> */}
+                    <input 
+                        style={inputStyle}
+                        required
+                        onChange={handleProfileChange}
+                        value={profileData.school}
+                        id="school"
+                        name="school"
+                    />
                 </div>
 
                 <label>
