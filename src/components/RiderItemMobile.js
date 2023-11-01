@@ -42,7 +42,7 @@ export default function RiderItemMobile({ data }) {
         const charCode = initial.charCodeAt(0);
         const colorIndex = charCode % colors.length;
 
-        // Return the selected color
+
         return colors[colorIndex];
     }
 
@@ -73,7 +73,7 @@ export default function RiderItemMobile({ data }) {
                     sx={{
                         color: '#454a4a',
                         "& .MuiCardHeader-subheader": {
-                            color: 'black' // Adjust the color as needed
+                            color: 'black' 
                         }
                     }}
                     title={data.user.first_name + ' ' + data.user.last_name}

@@ -24,7 +24,7 @@ export default function GuestHomePage() {
             position: 'relative',
             width: '100%',
             height: '100vh',
-            overflowX: 'hidden', // Prevent horizontal scrolling
+            overflowX: 'hidden',
             backgroundColor: 'rgba(0, 0, 0, 0.5)',
         }}>
             <div

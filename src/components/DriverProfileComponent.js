@@ -20,7 +20,7 @@ export default function DriverProfileComponent({ id }) {
     const theme = useTheme();
     const desktop = useMediaQuery(theme.breakpoints.up("md"));
 
-    //State for Driver's Rider
+
     const [driverPosts, setDriverPosts] = useState([]);
     const [driverUser, setDriverUser] = useState([]);
     const [driverProfiles, setDriverProfiles] = useState([]);

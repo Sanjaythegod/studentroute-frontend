@@ -26,7 +26,7 @@ export default function LoginForm() {
     const handleSubmit = (e) => {
         setLoading(true);
         e.preventDefault();
-        // Add your login logic here, e.g., sending data to a server or handling it in-app.
+
         console.log("Form data submitted:", formData);
         API.post('/login/', formData).then(res => {
             console.log(res.data)

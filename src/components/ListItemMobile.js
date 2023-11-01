@@ -64,7 +64,7 @@ export default function ListItemMobile({ isDriver, driverID, apiData  }) {
         const charCode = initial.charCodeAt(0);
         const colorIndex = charCode % colors.length;
 
-        // Return the selected color
+
         return colors[colorIndex];
     }
 
@@ -101,7 +101,7 @@ export default function ListItemMobile({ isDriver, driverID, apiData  }) {
                     sx={{
                         color: '#454a4a',
                         "& .MuiCardHeader-subheader": {
-                            color: 'black' // Adjust the color as needed
+                            color: 'black'
                         }
                     }}
                     title={apiData.user.first_name + ' ' + apiData.user.last_name}

@@ -42,7 +42,7 @@ export default function DriverItemMobile({ data  }) {
         const charCode = initial.charCodeAt(0);
         const colorIndex = charCode % colors.length;
 
-        // Return the selected color
+
         return colors[colorIndex];
     }
 
@@ -80,7 +80,7 @@ export default function DriverItemMobile({ data  }) {
                     sx={{
                         color: '#454a4a',
                         "& .MuiCardHeader-subheader": {
-                            color: 'black' // Adjust the color as needed
+                            color: 'black' 
                         }
                     }}
                     title={data.driverUser.first_name + ' ' + data.driverUser.last_name}

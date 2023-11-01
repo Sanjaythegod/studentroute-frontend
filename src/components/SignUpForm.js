@@ -49,7 +49,6 @@ export default function SignUpForm() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Add your login logic here, e.g., sending data to a server or handling it in-app.
         console.log("userData data submitted:", userData);
         console.log("Profile data submitted:", profileData);
 
@@ -62,7 +61,6 @@ export default function SignUpForm() {
                         console.log('result from creating a profile', res.data);
                         const updatedRider = { ...riderData, profile: res.data.id }
                         const updatedDriver = { ...driverData, profile: res.data.id }
-                        //Diffrent endpoints if the user wants to become a driver or rider
                         if (driverChecked) {
                             API.post('/profiles/drivers/', updatedDriver).then((res) => {
                                 console.log('result from creating a driver', res.data);

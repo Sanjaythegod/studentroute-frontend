@@ -12,7 +12,7 @@ import API from '../apiconfig'
 
 export const generateRandomColor = (firstName) => {
     const firstLetter = firstName.charAt(0).toLowerCase();
-    const letterCode = firstLetter.charCodeAt(0) - 97; // ASCII code for 'a' is 97
+    const letterCode = firstLetter.charCodeAt(0) - 97; 
 
     const r = (letterCode * 7) % 256;
     const g = (letterCode * 13) % 256;
@@ -22,14 +22,14 @@ export const generateRandomColor = (firstName) => {
 };
 
 export function generateColorFromInitial(initial) {
-    // Define an array of possible colors
+
     const colors = ['#ff5733', '#33ff57', '#5733ff', '#ff33d1', '#33a5ff', '#ffc933', "#FF5733", "#2AB3A6", "#C17A97", "#6EC4E8", "#A9D06E", "#F694C1", "#9F53C8", "#E1B135", "#4D9E66", "#EC7A44",];
 
-    // Use the ASCII value of the initial character to pick a color from the array
+
     const charCode = initial.charCodeAt(0);
     const colorIndex = charCode % colors.length;
 
-    // Return the selected color
+
     return colors[colorIndex];
 }
 
@@ -44,10 +44,9 @@ export default function RiderItem({ data }) {
                     <Paper elevation={1} style={{
                         padding: "20px",
                         backgroundColor: 'white',
-                        // boxShadow: "10px 4px 18px rgb(213 235 234)",
                         borderRadius: "20px",
-                        border: "none", // Add border when selected
-                        transition: "border 0.1s", // Add smooth transition effect
+                        border: "none", 
+                        transition: "border 0.1s", 
                     }}
 
                     >

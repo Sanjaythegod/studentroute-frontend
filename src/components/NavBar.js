@@ -139,7 +139,6 @@ function NavBar(props) {
                     </Typography>
                     <Box sx={{ display: { xs: 'none', sm: 'block' }, }}>
                         {!props.auth ? (
-                            // Code to render when condition is true
                             navItems.map((item) => (
                                 <Button
                                     key={item}
@@ -236,7 +235,7 @@ function NavBar(props) {
                     open={mobileOpen}
                     onClose={handleDrawerToggle}
                     ModalProps={{
-                        keepMounted: true, // Better open performance on mobile.
+                        keepMounted: true, 
                     }}
                     sx={{
                         display: { xs: 'block', sm: 'none' },

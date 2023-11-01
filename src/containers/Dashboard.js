@@ -109,7 +109,6 @@ export default function Dashboard() {
                 return Promise.all(dataPromises);
             })
             .then(dataResponses => {
-                // Now you have an array of objects, each containing posts, riders, profiles, and users
                 const combinedData = dataResponses.map(dataResponse => {
                     return dataResponse;
                 });
@@ -124,7 +123,6 @@ export default function Dashboard() {
             });
     }, []);
 
-    //user's data
     const [profile, setProfile] = useState(null)
     const [rider, setRider] = useState(null)
 
@@ -145,7 +143,7 @@ export default function Dashboard() {
                     const tempDriver = !!res.data.filter((driver) => driver.profile === profileID)[0] ? !!res.data.filter((driver) => driver.profile === profileID)[0].approved : null
                     console.log('tempdriver', tempDriver)
 
-                    //check if the rider has posted
+
                     if (!tempDriver) {
                         API.get('/profiles/riders/').then(res => {
                             const rider = res.data.filter((rider) => rider.profile === profileID)
@@ -161,7 +159,7 @@ export default function Dashboard() {
                         })
                     }
 
-                    //check if rider has a driver
+
 
 
                 })
@@ -170,7 +168,7 @@ export default function Dashboard() {
         });
     }, [])
 
-    //polling to find which driver is matched with user
+
 
     const [driverProfile, setDriverProfile] = useState(null);
     const [driverUser, setDriverUser] = useState(null)
@@ -224,10 +222,10 @@ export default function Dashboard() {
         const pollingInterval = 5000;
         console.log('driver polling ran');
         const poll = setInterval(() => {
-            // Define an empty array to store the combined data.
+
             const combinedData = [];
 
-            // Make all four API calls simultaneously.
+
             Promise.all([
                 API.get('/profiles/riders/'),
                 API.get('/profiles'),
@@ -237,17 +235,17 @@ export default function Dashboard() {
                 .then(([ridersResponse, profilesResponse, postsResponse, usersResponse]) => {
                     const riderData = ridersResponse.data.filter((rider) => rider.driver === driverID);
 
-                    // Use a loop or map to process each rider and combine the data.
+
                     riderData.forEach((rider) => {
                         const riderId = rider.id;
-                        // Retrieve the related profile and user information.
+
                         const profile = profilesResponse.data.find((profile) => profile.id === rider.profile);
                         const user = usersResponse.data.find((user) => user.id === profile.user);
 
-                        // Fetch post data for the given rider.
+
                         const post = postsResponse.data.find((post) => post.rider === riderId);
 
-                        // Create a new object combining the data and push it to the combinedData array.
+
                         const combinedObject = {
                             rider,
                             profile,
@@ -261,7 +259,7 @@ export default function Dashboard() {
                     setAllRiders(combinedData)
                 })
                 .catch((error) => {
-                    // Handle errors here.
+
                     console.error('Error:', error);
                 });
 
@@ -325,7 +323,7 @@ export default function Dashboard() {
                     </Box>
 
                 :
-                //Driver's Dashboard
+
                 <Grid container>
                     <Grid item xs={desktop ? 3 : 12}>
                         <Box sx={{ marginTop: desktop ? '125px' : '95px', height: '100%', backgroundColor: 'white' }}>
@@ -351,7 +349,7 @@ export default function Dashboard() {
                                         variant="outlined"
                                         value={search}
                                         sx={{ width: '245px' }}
-                                        onChange={handleSearchChange} // Attach the event handler
+                                        onChange={handleSearchChange} 
                                     />
                                 </Box>
 

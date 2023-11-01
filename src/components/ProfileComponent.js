@@ -43,8 +43,6 @@ export default function ProfileComponent({ id }) {
     const desktop = useMediaQuery(theme.breakpoints.up("md"));
     const [listItem, setListItem] = useState(null);
 
-    //state for Riders' Driver
-
     const [driverProfile, setDriverProfile] = useState(null)
     const [driverUser, setDriverUser] = useState(null)
 
@@ -104,7 +102,7 @@ export default function ProfileComponent({ id }) {
                         <Grid item xs={desktop ? 8 : 12} style={{ marginTop: '30px' }}>
                             {driver.length > 0 ? <p>The Driver is already driving someone</p> :
                                 user && profile && post && rider ?
-                                    // console.log([{user : user, profiles: profile, posts: post, riders: rider}])
+
                                     [{ user: user, profiles: profile, posts: post, riders: rider }].map((listing, index) => (
                                         desktop ? <ListItem key={index} apiData={listing} userData={userData} /> : <ListItemMobile key={index} apiData={listing} userData={userData} />
                                     ))
