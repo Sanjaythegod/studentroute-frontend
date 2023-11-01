@@ -39,6 +39,8 @@ function NavBar(props) {
         
     },[])
 
+    //Mobile Drawer
+
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }} >
             <Typography variant="h6" sx={{ my: 2, fontWeight: 700 }} onClick={() => { navigate('/') }}>
@@ -69,6 +71,8 @@ function NavBar(props) {
             </List>
         </Box>
     );
+
+    //Drawer for logged in Mobile User
 
     const authDrawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }} >
@@ -114,6 +118,8 @@ function NavBar(props) {
     );
 
     const container = window !== undefined ? () => window().document.body : undefined;
+
+    //Standard navbar
 
     return (
         <Box sx={{ display: 'flex', }}>
@@ -170,6 +176,7 @@ function NavBar(props) {
                                 </Button>
                             ))
                         ) : (
+                            // AUTH NavBar
                             authNavItems.map((item) => (
                                 <Button
                                     key={item}
@@ -203,6 +210,7 @@ function NavBar(props) {
                                     }}
 
                                 >
+                                    {/* Display profile icon */}
                                     {item === 'Profile' ? (
                                         <Badge badgeContent={props.badgeContent} color="secondary">
                                             <Avatar sx={{

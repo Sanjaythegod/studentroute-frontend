@@ -44,6 +44,7 @@ export default function DriverItem({ data }) {
         return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
     });
 
+    //null Driver
     const cancelRide = () => {
         API.put(`/profiles/riders/${data.riders.id}/`, {
             profile: data.profiles.id,
@@ -91,7 +92,7 @@ export default function DriverItem({ data }) {
                                 }
 
                             </Grid>
-
+                            
                             <Grid item xs={8}>
                                 {data.user.id === JSON.parse(localStorage.getItem('user')).user_id ?
                                     <Chip
@@ -130,6 +131,7 @@ export default function DriverItem({ data }) {
             <Snackbar open={open} autoHideDuration={6000} onClose={() => {
                 setOpen(false)
             }}>
+                {/*sucess = green*/}
                 <Alert onClose={() => {
                 setOpen(false)
                 }} severity="success" sx={{ width: '100%' }}>

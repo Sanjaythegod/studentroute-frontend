@@ -82,6 +82,7 @@ export default function RideReqiestForm() {
         const user_id = JSON.parse(localStorage.getItem('user')).user_id
         e.preventDefault();
 
+        //Get user Data
         API.get(`/users/${user_id}/`).then(res => {
             API.get('/profiles').then(res => {
                 const profileID = res.data.filter(profile => profile.user === user_id).length > 0 ? res.data.filter(profile => profile.user === user_id)[0].id : null
@@ -94,12 +95,13 @@ export default function RideReqiestForm() {
                             }
                         }
                     })
+                    //post to posts
                     API.post('/posts', {
                         frequency: formData.frequency,
                         date: formData.date,
                         time: formData.time,
                         additional_info: formData.additional_info,
-                        rider: riderID
+                        rider: riderID 
                     }).then((res) => {
                         console.log(res.data)
                         handleClick();
@@ -176,6 +178,7 @@ export default function RideReqiestForm() {
                 </Alert>
             </Snackbar>
 
+            {/* Fallback for un-verified driver */}
             <Snackbar open={errorOpen} autoHideDuration={6000} onClose={() => {
                 setErrorOpen(false)
             }}>

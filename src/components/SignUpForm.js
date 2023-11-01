@@ -30,7 +30,7 @@ export default function SignUpForm() {
         approved: false
     })
 
-    const [driverChecked, setDriverChecked] = useState(false)
+    const [driverChecked, setDriverChecked] = useState(false) // check if driver is clicked
 
     const Alert = React.forwardRef(function Alert(props, ref) {
         return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -61,6 +61,8 @@ export default function SignUpForm() {
                         console.log('result from creating a profile', res.data);
                         const updatedRider = { ...riderData, profile: res.data.id }
                         const updatedDriver = { ...driverData, profile: res.data.id }
+
+                        //post to /drivers if checkbox is clicked
                         if (driverChecked) {
                             API.post('/profiles/drivers/', updatedDriver).then((res) => {
                                 console.log('result from creating a driver', res.data);
@@ -71,6 +73,7 @@ export default function SignUpForm() {
                                 setOpen(true)
                             })
                         } else {
+                            // post to riders E.P
                             API.post('/profiles/riders/', updatedRider).then((res) => {
                                 console.log('result from creating a rider', res.data);
                                 navigate('/login')
@@ -202,19 +205,7 @@ export default function SignUpForm() {
                 </div>
                 <div>
                     <label htmlFor="school">School:</label>
-                    {/* <select
-                        id="school"
-                        name="school"
-                        value={profileData.school}
-                        onChange={handleProfileChange}
-                        required
-                        style={inputStyle}
-                    >
-                        <option value="">Select a school</option>
-                        <option value="Westview High School">Westview High School</option>
-                        <option value="Del Norte High School">Del Norte High School</option>
-                        <option value="Mount Carmel High School">Mount Carmel High School</option>
-                    </select> */}
+                    {/* String Checking */}
                     <input 
                         style={inputStyle}
                         required

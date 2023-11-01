@@ -62,6 +62,7 @@ export default function DriverProfileComponent({ id }) {
                     const driverId = res.data.filter((driver) => driver.profile === profileId)[0].id
                     console.log('driverid', driverId)
 
+                    //Check if the User is Driver
                     if (driverId) {
                         API.get('/profiles/riders/').then(res => {
                             const riderId = res.data.filter((rider) => rider.driver === driverId)
@@ -69,6 +70,7 @@ export default function DriverProfileComponent({ id }) {
                             console.log('rider id', riderProfile)
                             console.log(riderId)
 
+                            //0th array is to set which riders the driver is driving
                             if (riderId[0] && riderProfile[0]) {
                                 API.get('/posts').then(res => {
                                     setDriverPosts(res.data.filter((post) => post.rider === riderId[0].id)[0])
@@ -81,6 +83,7 @@ export default function DriverProfileComponent({ id }) {
                                         setDriverUser(res.data)
                                     }).then(() => {
                                         console.log('final')
+                                        //may be null, first check if they exist usng conditional rendering
                                         console.log('DRIVERPOST', driverPosts)
                                         console.log('DRIVERUSER', driverUser)
                                         console.log('DRIVERPROFILE', driverProfiles)

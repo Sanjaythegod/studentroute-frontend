@@ -123,6 +123,7 @@ export default function Dashboard() {
             });
     }, []);
 
+    //Driver State
     const [profile, setProfile] = useState(null)
     const [rider, setRider] = useState(null)
 
@@ -294,6 +295,8 @@ export default function Dashboard() {
                             textAlign: 'center'
                         }}>My Driver:</Typography> : null}
                         {driverProfile && driverUser ?
+
+                        //Driverside Dashboard
                             [{ driverUser: driverUser, driverProfile: driverProfile, user: { id: JSON.parse(localStorage.getItem('user')).user_id }, profiles: profile, riders: rider }].map((item) => (
                                 desktop ? <Box style={{ marginLeft: '100px' }}><DriverItem data={item} /></Box> : <DriverItemMobile data={item} />
                             ))

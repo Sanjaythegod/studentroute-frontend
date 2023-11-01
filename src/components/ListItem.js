@@ -27,6 +27,7 @@ const style = {
     p: 4,
 };
 
+//unused
 export const generateRandomColor = (firstName) => {
     const firstLetter = firstName.charAt(0).toLowerCase();
     const letterCode = firstLetter.charCodeAt(0) - 97; 
@@ -54,6 +55,7 @@ export function generateColorFromInitial(initial) {
 
 export default function ({ isDriver, driverID, apiData, profileId }) {
 
+    // UI State
     const [hover, setHover] = useState(false);
     const [openmodal, setOpenModal] = React.useState(false);
     const [open, setOpen] = useState(false)
@@ -63,8 +65,8 @@ export default function ({ isDriver, driverID, apiData, profileId }) {
     const navigate = useNavigate();
 
     useEffect(() => {
-        console.log('data from listItem API', apiData)
-        console.log(!!driverID)
+        console.log('data from listItem API', apiData) // check if Profile is null
+        console.log(!!driverID) // falsy or truthy
 
             fetch(`https://geocode.maps.co/search?q=`+apiData.profiles.address)
             .then(response => response.json())
@@ -101,8 +103,7 @@ export default function ({ isDriver, driverID, apiData, profileId }) {
         }).then(res => {
             console.log('response from making a driver request', res.data)
         }).catch(error => {
-            setOpen(true)
-
+            setOpen(true) // open snackbar
         })
     }
     return (
@@ -112,7 +113,6 @@ export default function ({ isDriver, driverID, apiData, profileId }) {
                     <Paper elevation={1} style={{
                         padding: "20px",
                         backgroundColor: 'white',
-
                         borderRadius: "20px",
                         border: "none", 
                         transition: "border 0.1s", 
@@ -140,6 +140,7 @@ export default function ({ isDriver, driverID, apiData, profileId }) {
 
                             </Grid>
 
+                            {/*Drive this rider component */}
                             <Grid item xs={8}>
                                 <Typography variant="subtitle1" color="primary">
                                     {
@@ -204,6 +205,7 @@ export default function ({ isDriver, driverID, apiData, profileId }) {
                 </Grid>
             </Grid>
 
+            {/* Modal -- unused since only Drivers have access to ListItem */}
             <Modal
                 open={openmodal}
                 onClose={handleClose}
@@ -228,7 +230,7 @@ export default function ({ isDriver, driverID, apiData, profileId }) {
                 setOpen(false)
             }}>
                 <Alert onClose={() => {
-                    setOpen(false)
+                    setOpen(false) 
                 }} severity="error" sx={{ width: '100%' }}>
                     You have already submitted a request
                 </Alert>
@@ -238,7 +240,7 @@ export default function ({ isDriver, driverID, apiData, profileId }) {
                 setDriverOpen(false)
             }}>
                 <Alert onClose={() => {
-                    setDriverOpen(false)
+                    setDriverOpen(false) 
                 }} severity="success" sx={{ width: '100%' }}>
                     You are now driving {apiData.user.first_name} {apiData.user.last_name}
                 </Alert>
